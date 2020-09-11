@@ -3,6 +3,7 @@
 #include <vector>
 #include <cstdio>
 #include <string>
+#include <ctime>
 
 using namespace std;
 
@@ -228,17 +229,41 @@ class Logger{
     // 		- Each command (except for “world”) should be numbered, starting with 1
     private:
     ofstream log_file;
+    int command_id = 0;
     public:
         explicit Logger(const char* log_file = nullptr): log_file(nullptr){
             this -> log_file = create_file(log_file);
+            this -> log_file << "GIS Program log:" << endl;
         }
         ~Logger(){
             this -> log_file.close();
         }
 
         void log_command(const string & command){
-            this -> log_file << command << endl;
+            if (command.empty() || command.find(";") == 0){
+                this -> log_file << command << endl;
+            } else{
+                this -> log_file << "Command " << ++command_id << ": "<<command << endl;
+            }
+
             //cout << command << endl;
+        }
+
+        void log_file_names(const char* db_file_name, const char* script_file_name, const char* log_file_name){
+            this -> log_file << "dbFile:\t" << db_file_name << endl;
+            this -> log_file << "script:\t" << script_file_name << endl;
+            this -> log_file << "log:\t" << log_file_name << endl;
+        }
+
+        static void log_time(const string & time_name = "Run Time:"){
+            string monthString[] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
+            string dayString[] = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat" };
+            time_t now = time(nullptr);
+            tm *ltm = localtime(&now);
+            cout << time_name << " " << dayString[ltm->tm_wday] << " " << monthString[ltm->tm_mon] << " " <<
+                    ltm->tm_mday << " " << (ltm->tm_hour < 10 ? "0":"") << ltm->tm_hour << ":" <<
+                    (ltm->tm_min < 10 ? "0":"") << ltm->tm_min << ":" << (ltm->tm_sec < 10 ? "0":"") <<
+                    ltm->tm_sec << " " << ltm->tm_zone << " " << 1900 + ltm->tm_year << endl;
         }
 };
 
@@ -276,6 +301,8 @@ class CommandProcessor {
             this -> script_lines = read_file(script_file);
             cout << "Reading the script file in CommandProcessor..." << endl;
             cout << "TODO use the <" << db_file << "> file!" << endl;
+            logger.log_file_names(db_file, script_file, log_file);
+            Logger::log_time("Start Time:");
             for (const auto& command: this->script_lines) {
                 logger.log_command(command);
                 if (command.empty() || command.find(";") == 0){
@@ -333,6 +360,7 @@ class CommandProcessor {
                 }
                 case QUIT:
                     process_quit_command();
+                    Logger::log_time("End time:");
                     break;
                 case DEBUG:
                     process_debug_command(*itr++);
@@ -383,6 +411,18 @@ class CommandProcessor {
             //			- The first non-comment line will specify the world boundaries (in DMS format) to be used:
             //			- world<tab><westLong><tab><eastLong><tab><southLat><tab><northLat>
             //			- features that lie outside the specified coordinate space simply will not be indexed.
+            /*
+                Quadtree children are printed in the order SW  SE  NE  NW
+                --------------------------------------------------------------------------------
+
+                Latitude/longitude values in index entries are shown as signed integers, in total seconds.
+
+                World boundaries are set to:
+                              138600
+                   -396000                -367200
+                              109800
+                --------------------------------------------------------------------------------
+             * */
             //TODO process world command
             cout << "args: " << west_long << "," << east_long << "," << south_lat << "," << north_lat << endl;
         }
