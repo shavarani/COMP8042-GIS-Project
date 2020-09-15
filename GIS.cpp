@@ -6,6 +6,8 @@
 #include <ctime>
 #include <limits>
 #include <sstream>
+#include <map>
+#include <set>
 
 using namespace std;
 
@@ -151,6 +153,14 @@ class GISRecord {
             return primary_long_dec;
         }
 
+        string get_feature_name() const{
+            return feature_name;
+		}
+
+		string get_state_alpha() const{
+		    return state_alpha;
+		}
+
 		GISRecord retrieve_record(const string& criteria) {
             return static_cast<GISRecord>(nullptr);
         }
@@ -200,12 +210,58 @@ class NameIndex {
 	// 		The table will resize itself automatically, by doubling its size whenever the table becomes 70% full.
 
 	// You must be able to display the contents of the hash table in a readable manner.
+    private:
+        int table_size = 1024;
+        double load_factor = 0.0;
+        map<unsigned long, set<int>> index;
+        int index_size = 0.0;
+        int longest_probe_sequence = 0.0;
+        int all_name_length = 0.0;
+
     public:
         ~NameIndex() = default;
+        NameIndex() : index() {}
         NameIndex( const NameIndex & rhs ) = default; // Copy Constructor
         NameIndex( NameIndex && rhs ) = default; // Move Constructor
         NameIndex & operator= ( const NameIndex & rhs ) = default; // Copy Assignment
         NameIndex & operator= ( NameIndex && rhs ) = default; // Move Assignment
+
+        void index_record(GISRecord &record, int record_offset){
+            unsigned long key = elf_hash(record.get_feature_name(), record.get_state_alpha());
+            if(!index.count(key))
+                index.insert(std::pair<unsigned long,set<int>>(key, {}));
+            index[key].insert(record_offset);
+            index_size++;
+        }
+
+        int get_index_size() const {
+            return index_size;
+        }
+
+        int get_longest_probe_sequence() const {
+            return longest_probe_sequence;
+        }
+
+        int get_average_name_length() const {
+            if (index_size > 0)
+                return all_name_length / index_size;
+            else
+                return 0;
+        }
+
+        static unsigned long elf_hash (const string & feature_name, const string & state_alpha) {
+            if (state_alpha.empty() && feature_name.empty())
+                return 0;
+            const char *s = (feature_name + state_alpha).c_str();
+            unsigned long h = 0, high;
+            while (*s) {
+                h = ( h << 4 ) + *s++;
+                if (high = h & 0xF0000000)
+                    h ^= high >> 24;
+                h &= ~high;
+            }
+            return h;
+        }
 };
 
 class CoordinateIndex {
@@ -228,12 +284,21 @@ class CoordinateIndex {
 	//		the relationships between its nodes, and the data objects in the leaf nodes.
 
 	//Quadtree children are printed in the order SW  SE  NE  NW
+    private:
+        int index_size = 0.0;
     public:
         ~CoordinateIndex() = default;
+        CoordinateIndex() = default;
         CoordinateIndex( const CoordinateIndex & rhs ) = default; // Copy Constructor
         CoordinateIndex( CoordinateIndex && rhs ) = default; // Move Constructor
         CoordinateIndex & operator= ( const CoordinateIndex & rhs ) = default; // Copy Assignment
         CoordinateIndex & operator= ( CoordinateIndex && rhs ) = default; // Move Assignment
+
+        void index_record(GISRecord &record, int record_offset){}
+
+        int get_index_size() const {
+            return index_size;
+        }
 };
 
 class BufferPool {
@@ -427,7 +492,15 @@ class SystemManager {
     // 		2. manages the initialization of the various system components.
     private:
         ofstream db_file;
+        int last_db_record_offset;
         World world;
+        NameIndex n_index;
+        CoordinateIndex c_index;
+        void record_to_db(const string & raw_record){
+            this -> db_file << raw_record << endl;
+            last_db_record_offset += 1;
+        }
+
     public:
         ~SystemManager(){
             this -> db_file.close();
@@ -436,9 +509,9 @@ class SystemManager {
         SystemManager( SystemManager && rhs ) = delete; // Move Constructor
         SystemManager & operator= ( const SystemManager & rhs ) = delete; // Copy Assignment
         SystemManager & operator= ( SystemManager && rhs ) = default; // Move Assignment
-        explicit SystemManager(const char* db_file_adr = nullptr): db_file(nullptr), world(){
+        explicit SystemManager(const char* db_file_adr = nullptr):
+                db_file(nullptr), world(), n_index(), c_index(), last_db_record_offset(0){
             this -> db_file = create_file(db_file_adr);
-            this -> db_file << "DB_FILE:" << endl;
         }
 
         void process_debug_command(const string & component_name){
@@ -475,7 +548,7 @@ class SystemManager {
             return world.print();
         }
 
-        void process_import_command(const string & gis_record_file_name){
+        string process_import_command(const string & gis_record_file_name){
             //		4. Import command:
             //			- import<tab><GIS record file>
             //			- Add all the valid GIS records in the specified file to the database file.
@@ -485,17 +558,27 @@ class SystemManager {
             //				- the number of entries added to each index,
             //				- the longest probe sequence that was needed when inserting to the hash table.
             vector<string> gis_records = read_file("../GIS_FILES/"+gis_record_file_name);
-            //GISRecord record(gis_records[10]);
             bool first_record_seen = false;
+            int n_index_size_before_import = n_index.get_index_size();
+            int c_index_size_before_import = c_index.get_index_size();
             for (const auto& gis_record: gis_records) {
                 if (first_record_seen) {
                     GISRecord record(gis_record);
-                    bool in_world = world.is_in_world_boundaries(record);
+                    if(world.is_in_world_boundaries(record)){
+                        n_index.index_record(record, last_db_record_offset);
+                        c_index.index_record(record, last_db_record_offset);
+                        record_to_db(gis_record);
+                    }
                 }
                 first_record_seen = true;
-                //delete &record;
             }
-            // Done properly!
+            std::ostringstream os;
+            os  << endl;
+            os  << "Imported Features by name: " << n_index.get_index_size() - n_index_size_before_import << endl
+                << "Longest probe sequence:    " << n_index.get_longest_probe_sequence() << endl
+                << "Imported Locations:        " << c_index.get_index_size() - c_index_size_before_import << endl
+                << "Average name length:       " << n_index.get_average_name_length() << endl;
+            return os.str();
         }
 
         // TODO		-- optional -sort flag for "what is" commands needs to be worked out!
@@ -593,7 +676,7 @@ class CommandProcessor {
                     break;
                 }
                 case IMPORT:
-                    systemManager.process_import_command(*itr++);
+                    logger.log_printable_log(systemManager.process_import_command(*itr++));
                     if (itr != arguments.end())
                         throw std::invalid_argument("Import command only receives 1 argument");
                     break;
