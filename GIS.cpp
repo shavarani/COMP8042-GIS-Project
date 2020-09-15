@@ -376,124 +376,124 @@ class SystemManager {
     // Use cases:
     // 		1. validates the command line arguments
     // 		2. manages the initialization of the various system components.
-private:
-    ofstream db_file;
-    World* world;
-public:
-    ~SystemManager() = default;
-    //SystemManager( const SystemManager & rhs ) = default; // Copy Constructor
-    //SystemManager( SystemManager && rhs ) = default; // Move Constructor
-    //SystemManager & operator= ( const SystemManager & rhs )= default; // Copy Assignment
-    //SystemManager & operator= ( SystemManager && rhs )= default; // Move Assignment
+    private:
+        ofstream db_file;
+        World* world;
+    public:
+        ~SystemManager() = default;
+        //SystemManager( const SystemManager & rhs ) = default; // Copy Constructor
+        //SystemManager( SystemManager && rhs ) = default; // Move Constructor
+        //SystemManager & operator= ( const SystemManager & rhs )= default; // Copy Assignment
+        //SystemManager & operator= ( SystemManager && rhs )= default; // Move Assignment
 
-    explicit SystemManager(const char* db_file_adr = nullptr): db_file(nullptr), world(nullptr){
-        this -> db_file = create_file(db_file_adr);
-        this -> db_file << "DB_FILE:" << endl;
-    }
-
-    void process_debug_command(const string & component_name){
-        //		5. Debug command:
-        //			- debug<tab>[ quad | hash | pool | world]
-        //			- Log the contents of the specified index structure
-        //				- include key values and file offsets
-        if (component_name == "world") {
-            cout << "debugging " + component_name << endl;
-        } else if (component_name == "quad") {
-            cout << "debugging " + component_name << endl;
-        } else if (component_name == "hash") {
-            cout << "debugging " + component_name << endl;
-        } else if (component_name == "pool") {
-            cout << "debugging " + component_name << endl;
-        } else {
-            throw std::invalid_argument("Invalid component_name: "+component_name);
+        explicit SystemManager(const char* db_file_adr = nullptr): db_file(nullptr), world(nullptr){
+            this -> db_file = create_file(db_file_adr);
+            this -> db_file << "DB_FILE:" << endl;
         }
-    }
 
-    void process_quit_command(){
-        //		6. Quit Command
-        //			- quit<tab>
-        //			- Terminate program execution.
-        cout << "quitting ..." << endl;
-    }
-
-    string process_world_command(const string& west_long, const string& east_long,
-                               const string& south_lat, const string& north_lat){
-        // 		3. World command (occur once):
-        //			- The first non-comment line will specify the world boundaries (in DMS format) to be used:
-        //			- world<tab><westLong><tab><eastLong><tab><southLat><tab><northLat>
-        World wd(west_long, east_long, south_lat, north_lat);
-        world = &wd;
-        return wd.print();
-    }
-
-    void process_import_command(const string & gis_record_file_name){
-        //		4. Import command:
-        //			- import<tab><GIS record file>
-        //			- Add all the valid GIS records in the specified file to the database file.
-        //				- records will be appended to the existing database file
-        //				- those records will be indexed in the manner described earlier.
-        //			- When completed, log
-        //				- the number of entries added to each index,
-        //				- the longest probe sequence that was needed when inserting to the hash table.
-        vector<string> gis_records = read_file("../GIS_FILES/"+gis_record_file_name);
-        //GISRecord record(gis_records[10]);
-        bool first_record_seen = false;
-        for (const auto& gis_record: gis_records) {
-            if (first_record_seen)
-                GISRecord record(gis_record);
-            first_record_seen = true;
-            //delete &record;
+        void process_debug_command(const string & component_name){
+            //		5. Debug command:
+            //			- debug<tab>[ quad | hash | pool | world]
+            //			- Log the contents of the specified index structure
+            //				- include key values and file offsets
+            if (component_name == "world") {
+                cout << "debugging " + component_name << endl;
+            } else if (component_name == "quad") {
+                cout << "debugging " + component_name << endl;
+            } else if (component_name == "hash") {
+                cout << "debugging " + component_name << endl;
+            } else if (component_name == "pool") {
+                cout << "debugging " + component_name << endl;
+            } else {
+                throw std::invalid_argument("Invalid component_name: "+component_name);
+            }
         }
-        // Done properly!
-    }
 
-    // TODO		-- optional -sort flag for "what is" commands needs to be worked out!
-    void process_what_is_command(const string & feature_name, const string & state_abbreviation){
-        //		7. what is command
-        //			- what is<tab><feature name><tab><state abbreviation>
-        //			- find every GIS record in the database file that matches the given <feature name> and <state abbreviation>
-        //			- for each record log only
-        //				- the offset (at which the record was found)
-        //				- the county name
-        //				- the primary latitude
-        //				- the primary longitude
-        cout << "args: " << feature_name << ", " << state_abbreviation << endl;
-    }
+        void process_quit_command(){
+            //		6. Quit Command
+            //			- quit<tab>
+            //			- Terminate program execution.
+            cout << "quitting ..." << endl;
+        }
 
-    // TODO		-- optional -sort flag for "what is at" commands needs to be worked out!
-    void process_what_is_at_command(const string & geographic_coordinate_lat, const string & geographic_coordinate_long){
-        //		8. what is at command
-        //			- what is at<tab><geographic coordinate>
-        //			- find every GIS record in the database file that matches the given <geographic coordinate>,
-        //				- for each record log only log:
-        //					- the offset (at which the record was found)
-        //					- the feature name
-        //					- county name
-        //					- state abbreviation
-        cout << "args: " << geographic_coordinate_lat << ", " << geographic_coordinate_long << endl;
-    }
+        string process_world_command(const string& west_long, const string& east_long,
+                                   const string& south_lat, const string& north_lat){
+            // 		3. World command (occur once):
+            //			- The first non-comment line will specify the world boundaries (in DMS format) to be used:
+            //			- world<tab><westLong><tab><eastLong><tab><southLat><tab><northLat>
+            World wd(west_long, east_long, south_lat, north_lat);
+            world = &wd;
+            return wd.print();
+        }
 
-    // TODO		-- optional -sort flag for "what is in" commands needs to be worked out!
-    void process_what_is_in_command(const string & geographic_coordinate_lat, const string & geographic_coordinate_long,
-                                    const string & half_height, const string & half_width, const string & filter, bool long_report){
-        //		9. What is in command
-        //			- what is in<tab><geographic coordinate><tab><half-height><tab><half-width>
-        //				- optional -long : display of a long listing of the relevant records
-        //									- The switch will be the first token following the name of the command.
-        //				- optional -filter [ pop | water | structure ]
-        //									- The switch and its modifier will be the first and second tokens following the name of the command.
-        //			- find every GIS record in the database file whose coordinates fall within the closed rectangle
-        //					(with the specified height and width [specified as seconds], centered at the <geographic coordinate>)
-        //				- if [-filter] provided: filter the set of matching records to only show those whose feature type field corresponds to the given filter specifier (Table 2 in the Appendix).
-        //					- if [-long] provided: for each record log every important non-empty field, nicely formatted and labeled.
-        //					- else: for each record only log
-        //						- the offset (at which the record was found)
-        //						- the feature name
-        //						- the state name
-        //						- the primary latitude
-        //						- the primary longitude
-        cout << "args: " << geographic_coordinate_lat << ", " << geographic_coordinate_long << ", +/-" << half_height << ", +/-" << half_width << ", filter: " << filter << ", long? "<< (long_report?"true":"false") << endl;
-    }
+        void process_import_command(const string & gis_record_file_name){
+            //		4. Import command:
+            //			- import<tab><GIS record file>
+            //			- Add all the valid GIS records in the specified file to the database file.
+            //				- records will be appended to the existing database file
+            //				- those records will be indexed in the manner described earlier.
+            //			- When completed, log
+            //				- the number of entries added to each index,
+            //				- the longest probe sequence that was needed when inserting to the hash table.
+            vector<string> gis_records = read_file("../GIS_FILES/"+gis_record_file_name);
+            //GISRecord record(gis_records[10]);
+            bool first_record_seen = false;
+            for (const auto& gis_record: gis_records) {
+                if (first_record_seen)
+                    GISRecord record(gis_record);
+                first_record_seen = true;
+                //delete &record;
+            }
+            // Done properly!
+        }
+
+        // TODO		-- optional -sort flag for "what is" commands needs to be worked out!
+        void process_what_is_command(const string & feature_name, const string & state_abbreviation){
+            //		7. what is command
+            //			- what is<tab><feature name><tab><state abbreviation>
+            //			- find every GIS record in the database file that matches the given <feature name> and <state abbreviation>
+            //			- for each record log only
+            //				- the offset (at which the record was found)
+            //				- the county name
+            //				- the primary latitude
+            //				- the primary longitude
+            cout << "args: " << feature_name << ", " << state_abbreviation << endl;
+        }
+
+        // TODO		-- optional -sort flag for "what is at" commands needs to be worked out!
+        void process_what_is_at_command(const string & geographic_coordinate_lat, const string & geographic_coordinate_long){
+            //		8. what is at command
+            //			- what is at<tab><geographic coordinate>
+            //			- find every GIS record in the database file that matches the given <geographic coordinate>,
+            //				- for each record log only log:
+            //					- the offset (at which the record was found)
+            //					- the feature name
+            //					- county name
+            //					- state abbreviation
+            cout << "args: " << geographic_coordinate_lat << ", " << geographic_coordinate_long << endl;
+        }
+
+        // TODO		-- optional -sort flag for "what is in" commands needs to be worked out!
+        void process_what_is_in_command(const string & geographic_coordinate_lat, const string & geographic_coordinate_long,
+                                        const string & half_height, const string & half_width, const string & filter, bool long_report){
+            //		9. What is in command
+            //			- what is in<tab><geographic coordinate><tab><half-height><tab><half-width>
+            //				- optional -long : display of a long listing of the relevant records
+            //									- The switch will be the first token following the name of the command.
+            //				- optional -filter [ pop | water | structure ]
+            //									- The switch and its modifier will be the first and second tokens following the name of the command.
+            //			- find every GIS record in the database file whose coordinates fall within the closed rectangle
+            //					(with the specified height and width [specified as seconds], centered at the <geographic coordinate>)
+            //				- if [-filter] provided: filter the set of matching records to only show those whose feature type field corresponds to the given filter specifier (Table 2 in the Appendix).
+            //					- if [-long] provided: for each record log every important non-empty field, nicely formatted and labeled.
+            //					- else: for each record only log
+            //						- the offset (at which the record was found)
+            //						- the feature name
+            //						- the state name
+            //						- the primary latitude
+            //						- the primary longitude
+            cout << "args: " << geographic_coordinate_lat << ", " << geographic_coordinate_long << ", +/-" << half_height << ", +/-" << half_width << ", filter: " << filter << ", long? "<< (long_report?"true":"false") << endl;
+        }
 };
 
 class CommandProcessor {
@@ -593,12 +593,6 @@ class CommandProcessor {
 
         }
 };
-
-
-
-
-
-
 
 int main(int argc, char const *argv[]) {
 	if (argc != 4){
