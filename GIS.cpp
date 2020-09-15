@@ -5,6 +5,7 @@
 #include <string>
 #include <ctime>
 #include <limits>
+#include <sstream>
 
 using namespace std;
 
@@ -72,7 +73,9 @@ class GISRecord {
     string map_name;
     string date_created;
     string date_edited;
-    void alter_print_str(const string & name, const string & value, string & result, bool & empty_found, const string & delim = " --- "){
+
+    static void alter_print_str(const string & name, const string & value, string & result,
+                                bool & empty_found, const string & delim = " --- "){
         if (!value.empty()){
             result += delim + name + value;
         } else{
@@ -81,7 +84,7 @@ class GISRecord {
     }
 
     public:
-        GISRecord(const string & raw_record){
+        explicit GISRecord(const string & raw_record){
             if(raw_record.empty()){
                 return;
             }
@@ -125,9 +128,7 @@ class GISRecord {
             return static_cast<GISRecord>(nullptr);
         }
 
-
-
-        void print(){
+        string print(){
 		    bool empty_found = false;
 		    string result;
             alter_print_str("Feature Id: ", to_string(feature_id), result, empty_found);
@@ -151,9 +152,9 @@ class GISRecord {
             alter_print_str("Date Created: ", date_created, result, empty_found);
             alter_print_str("Date Edited: ", date_edited, result, empty_found);
             if (empty_found){
-                cout << "[Empty Attributes have been removed!]"<< result << endl;
+                return "[Empty Attributes have been removed!]" + result + "\n";
             }else{
-                cout << result << endl;
+                return result + "\n";
             }
 		}
 
@@ -204,6 +205,8 @@ class CoordinateIndex {
 	// You must be able to display the PR quadtree in a readable manner.
 	//		The display must clearly indicate the structure of the tree, 
 	//		the relationships between its nodes, and the data objects in the leaf nodes.
+
+	//Quadtree children are printed in the order SW  SE  NE  NW
 };
 
 class BufferPool {
@@ -221,43 +224,34 @@ class BufferPool {
 		~BufferPool() = default;
 };
 
-
-
-class Rectangle{
+class Rectangle {
 	// a class containing a spatial region information	
 };
 
-class SystemManager{
-	// Use cases:
-	// 		1. validates the command line arguments
-	// 		2. manages the initialization of the various system components.
-};
-
-class Logger{
+class Logger {
     // You should begin the log with a few lines identifying yourself
     // then listing the names of the input files that are being used.
     // then echo each comment line, and each command that you process to the log file
     // 		- Each command (except for “world”) should be numbered, starting with 1
     private:
-    ofstream log_file;
-    int command_id = 0;
+        ofstream log_file;
+        int command_id = 0;
     public:
-        explicit Logger(const char* log_file = nullptr): log_file(nullptr){
-            this -> log_file = create_file(log_file);
+        explicit Logger(const char* log_file_adr = nullptr): log_file(nullptr){
+            this -> log_file = create_file(log_file_adr);
             this -> log_file << "GIS Program log:" << endl;
         }
+
         ~Logger(){
             this -> log_file.close();
         }
 
         void log_command(const string & command){
-            if (command.empty() || command.find(";") == 0){
+            if (command.empty() || command.find(";") == 0 || command.substr(0, 5) == "world"){
                 this -> log_file << command << endl;
             } else{
                 this -> log_file << "Command " << ++command_id << ": "<<command << endl;
             }
-
-            //cout << command << endl;
         }
 
         void log_file_names(const char* db_file_name, const char* script_file_name, const char* log_file_name){
@@ -266,12 +260,16 @@ class Logger{
             this -> log_file << "log:\t" << log_file_name << endl;
         }
 
-        static void log_time(const string & time_name = "Run Time:"){
+        void log_printable_log(const string& log){
+            this->log_file << log << endl;
+        }
+
+        void log_time(const string & time_name = "Run Time:"){
             string monthString[] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
             string dayString[] = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat" };
             time_t now = time(nullptr);
             tm *ltm = localtime(&now);
-            cout << time_name << " " << dayString[ltm->tm_wday] << " " << monthString[ltm->tm_mon] << " " <<
+            this->log_file << time_name << " " << dayString[ltm->tm_wday] << " " << monthString[ltm->tm_mon] << " " <<
                     ltm->tm_mday << " " << (ltm->tm_hour < 10 ? "0":"") << ltm->tm_hour << ":" <<
                     (ltm->tm_min < 10 ? "0":"") << ltm->tm_min << ":" << (ltm->tm_sec < 10 ? "0":"") <<
                     ltm->tm_sec << " " << ltm->tm_zone << " " << 1900 + ltm->tm_year << endl;
@@ -300,6 +298,204 @@ Command get_command(const string& command_name){
     }
 }
 
+
+class World {
+    private:
+        string west_long_dms;
+        string east_long_dms;
+        string south_lat_dms;
+        string north_lat_dms;
+        double west_long_dec;
+        double east_long_dec;
+        double south_lat_dec;
+        double north_lat_dec;
+    public:
+        World(const string& west_long, const string& east_long,
+              const string& south_lat, const string& north_lat):
+                  west_long_dms(west_long), east_long_dms(east_long),
+                  south_lat_dms(south_lat), north_lat_dms(north_lat){
+            //			- features that lie outside the specified coordinate space simply will not be indexed.
+            /*
+                Quadtree children are printed in the order SW  SE  NE  NW
+                --------------------------------------------------------------------------------
+
+                Latitude/longitude values in index entries are shown as signed integers, in total seconds.
+
+                World boundaries are set to:
+                              138600
+                   -396000                -367200
+                              109800
+                --------------------------------------------------------------------------------
+             * */
+            west_long_dec = convert_dms_to_dec(west_long);
+            east_long_dec = convert_dms_to_dec(east_long);
+            south_lat_dec = convert_dms_to_dec(south_lat);
+            north_lat_dec = convert_dms_to_dec(north_lat);
+        }
+
+        string print() {
+            string log_tabs = "\t\t\t\t\t\t";
+            std::ostringstream os;
+            os  << "------------------------------------------------------------------------------------------" << endl
+                << "Latitude/longitude values in index entries are shown as signed integers, in total seconds." <<endl
+                << "------------------------------------------------------------------------------------------" << endl
+                <<  log_tabs << "World boundaries are set to:"<< endl
+                <<  log_tabs << "           " << (north_lat_dec < 0? "-": "") << north_lat_dms.substr(0, 6) << endl
+                <<  log_tabs << (west_long_dec < 0? "-": "") << west_long_dms.substr(0, 6) << "              " << (east_long_dec < 0? "-": "") << east_long_dms.substr(0, 6) << endl
+                <<  log_tabs << "           " << (south_lat_dec < 0? "-": "") << south_lat_dms.substr(0, 6) << endl
+                << "------------------------------------------------------------------------------------------" << endl;
+            return os.str();
+        }
+
+        double static convert_dms_to_dec(const string& dms){
+            if (dms.length()!= 7 && dms.length() != 8){
+                throw std::invalid_argument("DMS values are expected to be of sizes 7 or 8");
+            }
+            bool neg(false) ;
+            bool is_latitude(false);
+            if (dms[dms.length() - 1] == 'W'){
+                neg = true;
+            } else if (dms[dms.length() - 1] == 'S') {
+                is_latitude = true;
+                neg = true;
+            } else if (dms[dms.length() - 1] == 'N') {
+                is_latitude = true;
+            } else if (dms[0] == '-') {
+                throw std::invalid_argument("DMS values are expected to show the sign using the direction modifiers at the end");
+            }
+            double deg, min_, sec;
+            deg = stof(dms.substr(0, is_latitude? 2: 3));
+            min_= stof(dms.substr(is_latitude? 2: 3, 2));
+            sec = stof(dms.substr(is_latitude? 4: 5, 2));
+            double ang = deg + ((min_ + (sec / 60.0)) / 60.0) ;
+            return neg? -ang: ang;
+        }
+};
+
+class SystemManager {
+    // Use cases:
+    // 		1. validates the command line arguments
+    // 		2. manages the initialization of the various system components.
+private:
+    ofstream db_file;
+    World* world;
+public:
+    ~SystemManager() = default;
+    //SystemManager( const SystemManager & rhs ) = default; // Copy Constructor
+    //SystemManager( SystemManager && rhs ) = default; // Move Constructor
+    //SystemManager & operator= ( const SystemManager & rhs )= default; // Copy Assignment
+    //SystemManager & operator= ( SystemManager && rhs )= default; // Move Assignment
+
+    explicit SystemManager(const char* db_file_adr = nullptr): db_file(nullptr), world(nullptr){
+        this -> db_file = create_file(db_file_adr);
+        this -> db_file << "DB_FILE:" << endl;
+    }
+
+    void process_debug_command(const string & component_name){
+        //		5. Debug command:
+        //			- debug<tab>[ quad | hash | pool | world]
+        //			- Log the contents of the specified index structure
+        //				- include key values and file offsets
+        if (component_name == "world") {
+            cout << "debugging " + component_name << endl;
+        } else if (component_name == "quad") {
+            cout << "debugging " + component_name << endl;
+        } else if (component_name == "hash") {
+            cout << "debugging " + component_name << endl;
+        } else if (component_name == "pool") {
+            cout << "debugging " + component_name << endl;
+        } else {
+            throw std::invalid_argument("Invalid component_name: "+component_name);
+        }
+    }
+
+    void process_quit_command(){
+        //		6. Quit Command
+        //			- quit<tab>
+        //			- Terminate program execution.
+        cout << "quitting ..." << endl;
+    }
+
+    string process_world_command(const string& west_long, const string& east_long,
+                               const string& south_lat, const string& north_lat){
+        // 		3. World command (occur once):
+        //			- The first non-comment line will specify the world boundaries (in DMS format) to be used:
+        //			- world<tab><westLong><tab><eastLong><tab><southLat><tab><northLat>
+        World wd(west_long, east_long, south_lat, north_lat);
+        world = &wd;
+        return wd.print();
+    }
+
+    void process_import_command(const string & gis_record_file_name){
+        //		4. Import command:
+        //			- import<tab><GIS record file>
+        //			- Add all the valid GIS records in the specified file to the database file.
+        //				- records will be appended to the existing database file
+        //				- those records will be indexed in the manner described earlier.
+        //			- When completed, log
+        //				- the number of entries added to each index,
+        //				- the longest probe sequence that was needed when inserting to the hash table.
+        vector<string> gis_records = read_file("../GIS_FILES/"+gis_record_file_name);
+        //GISRecord record(gis_records[10]);
+        bool first_record_seen = false;
+        for (const auto& gis_record: gis_records) {
+            if (first_record_seen)
+                GISRecord record(gis_record);
+            first_record_seen = true;
+            //delete &record;
+        }
+        // Done properly!
+    }
+
+    // TODO		-- optional -sort flag for "what is" commands needs to be worked out!
+    void process_what_is_command(const string & feature_name, const string & state_abbreviation){
+        //		7. what is command
+        //			- what is<tab><feature name><tab><state abbreviation>
+        //			- find every GIS record in the database file that matches the given <feature name> and <state abbreviation>
+        //			- for each record log only
+        //				- the offset (at which the record was found)
+        //				- the county name
+        //				- the primary latitude
+        //				- the primary longitude
+        cout << "args: " << feature_name << ", " << state_abbreviation << endl;
+    }
+
+    // TODO		-- optional -sort flag for "what is at" commands needs to be worked out!
+    void process_what_is_at_command(const string & geographic_coordinate_lat, const string & geographic_coordinate_long){
+        //		8. what is at command
+        //			- what is at<tab><geographic coordinate>
+        //			- find every GIS record in the database file that matches the given <geographic coordinate>,
+        //				- for each record log only log:
+        //					- the offset (at which the record was found)
+        //					- the feature name
+        //					- county name
+        //					- state abbreviation
+        cout << "args: " << geographic_coordinate_lat << ", " << geographic_coordinate_long << endl;
+    }
+
+    // TODO		-- optional -sort flag for "what is in" commands needs to be worked out!
+    void process_what_is_in_command(const string & geographic_coordinate_lat, const string & geographic_coordinate_long,
+                                    const string & half_height, const string & half_width, const string & filter, bool long_report){
+        //		9. What is in command
+        //			- what is in<tab><geographic coordinate><tab><half-height><tab><half-width>
+        //				- optional -long : display of a long listing of the relevant records
+        //									- The switch will be the first token following the name of the command.
+        //				- optional -filter [ pop | water | structure ]
+        //									- The switch and its modifier will be the first and second tokens following the name of the command.
+        //			- find every GIS record in the database file whose coordinates fall within the closed rectangle
+        //					(with the specified height and width [specified as seconds], centered at the <geographic coordinate>)
+        //				- if [-filter] provided: filter the set of matching records to only show those whose feature type field corresponds to the given filter specifier (Table 2 in the Appendix).
+        //					- if [-long] provided: for each record log every important non-empty field, nicely formatted and labeled.
+        //					- else: for each record only log
+        //						- the offset (at which the record was found)
+        //						- the feature name
+        //						- the state name
+        //						- the primary latitude
+        //						- the primary longitude
+        cout << "args: " << geographic_coordinate_lat << ", " << geographic_coordinate_long << ", +/-" << half_height << ", +/-" << half_width << ", filter: " << filter << ", long? "<< (long_report?"true":"false") << endl;
+    }
+};
+
 class CommandProcessor {
     // Duties:
     //		1. manages retrieving commands from the script file
@@ -307,13 +503,14 @@ class CommandProcessor {
     private:
         Logger logger;
         vector<string> script_lines;
+        SystemManager systemManager;
     public:
-        explicit CommandProcessor(const char* db_file, const char* script_file, const char* log_file): logger(log_file) {
+        explicit CommandProcessor(const char* db_file, const char* script_file, const char* log_file):
+                logger(log_file), systemManager(db_file) {
             this -> script_lines = read_file(script_file);
             cout << "Reading the script file in CommandProcessor..." << endl;
-            cout << "TODO use the <" << db_file << "> file!" << endl;
             logger.log_file_names(db_file, script_file, log_file);
-            Logger::log_time("Start Time:");
+            logger.log_time("Start Time:");
             for (const auto& command: this->script_lines) {
                 logger.log_command(command);
                 if (command.empty() || command.find(";") == 0){
@@ -328,23 +525,28 @@ class CommandProcessor {
             auto itr = arguments.begin();
             const string command = *itr++;
             switch(get_command(command)) {
-                case WORLD:
-                    process_world_command(*itr++, *itr++, *itr++, *itr++);
+                case WORLD: {
+                    string west = *itr++;
+                    string east = *itr++;
+                    string north = *itr++;
+                    string south = *itr++;
+                    logger.log_printable_log(systemManager.process_world_command(west, east, north, south));
                     if (itr != arguments.end())
                         throw std::invalid_argument("World command only receives 4 arguments");
                     break;
+                }
                 case IMPORT:
-                    process_import_command(*itr++);
+                    systemManager.process_import_command(*itr++);
                     if (itr != arguments.end())
                         throw std::invalid_argument("Import command only receives 1 argument");
                     break;
                 case WHAT_IS:
-                    process_what_is_command(*itr++, *itr++);
+                    systemManager.process_what_is_command(*itr++, *itr++);
                     if (itr != arguments.end())
                         throw std::invalid_argument("What_is command only receives 2 arguments");
                     break;
                 case WHAT_IS_AT:
-                    process_what_is_at_command(*itr++, *itr++);
+                    systemManager.process_what_is_at_command(*itr++, *itr++);
                     if (itr != arguments.end())
                         throw std::invalid_argument("What_is_at command only receives 2 arguments");
                     break;
@@ -362,7 +564,7 @@ class CommandProcessor {
                         first = *itr++;
                         second = *itr++;
                     }
-                    process_what_is_in_command(first, second, *itr++, *itr++, filter, long_report);
+                    systemManager.process_what_is_in_command(first, second, *itr++, *itr++, filter, long_report);
                     while(itr != arguments.end() && (*itr++).empty())
                         continue;
                     if (itr != arguments.end())
@@ -370,11 +572,11 @@ class CommandProcessor {
                     break;
                 }
                 case QUIT:
-                    process_quit_command();
-                    Logger::log_time("End time:");
+                    systemManager.process_quit_command();
+                    logger.log_time("End time:");
                     break;
                 case DEBUG:
-                    process_debug_command(*itr++);
+                    systemManager.process_debug_command(*itr++);
                     if (itr != arguments.end())
                         throw std::invalid_argument("Debug command only receives 1 argument");
                     break;
@@ -389,122 +591,6 @@ class CommandProcessor {
             //for(const auto& command_part: command_parts)
             //    cout << command_part << endl;
 
-        }
-
-        void process_debug_command(const string & component_name){
-            //		5. Debug command:
-            //			- debug<tab>[ quad | hash | pool | world]
-            //			- Log the contents of the specified index structure
-            //				- include key values and file offsets
-            if (component_name == "world") {
-                cout << "debugging " + component_name << endl;
-            } else if (component_name == "quad") {
-                cout << "debugging " + component_name << endl;
-            } else if (component_name == "hash") {
-                cout << "debugging " + component_name << endl;
-            } else if (component_name == "pool") {
-                cout << "debugging " + component_name << endl;
-            } else {
-                throw std::invalid_argument("Invalid component_name: "+component_name);
-            }
-        }
-
-        void process_quit_command(){
-            //		6. Quit Command
-            //			- quit<tab>
-            //			- Terminate program execution.
-            cout << "quitting ..." << endl;
-        }
-
-        void process_world_command(const string& west_long, const string& east_long,
-                                   const string& south_lat, const string& north_lat){
-            // 		3. World command (occur once):
-            //			- The first non-comment line will specify the world boundaries (in DMS format) to be used:
-            //			- world<tab><westLong><tab><eastLong><tab><southLat><tab><northLat>
-            //			- features that lie outside the specified coordinate space simply will not be indexed.
-            /*
-                Quadtree children are printed in the order SW  SE  NE  NW
-                --------------------------------------------------------------------------------
-
-                Latitude/longitude values in index entries are shown as signed integers, in total seconds.
-
-                World boundaries are set to:
-                              138600
-                   -396000                -367200
-                              109800
-                --------------------------------------------------------------------------------
-             * */
-            //TODO process world command
-            cout << "args: " << west_long << "," << east_long << "," << south_lat << "," << north_lat << endl;
-        }
-
-        void process_import_command(const string & gis_record_file_name){
-            //		4. Import command:
-            //			- import<tab><GIS record file>
-            //			- Add all the valid GIS records in the specified file to the database file.
-            //				- records will be appended to the existing database file
-            //				- those records will be indexed in the manner described earlier.
-            //			- When completed, log
-            //				- the number of entries added to each index,
-            //				- the longest probe sequence that was needed when inserting to the hash table.
-            vector<string> gis_records = read_file("../GIS_FILES/"+gis_record_file_name);
-            //GISRecord record(gis_records[10]);
-            bool first_record_seen = false;
-            for (const auto& gis_record: gis_records) {
-                if (first_record_seen)
-                    GISRecord record(gis_record);
-                first_record_seen = true;
-                //delete &record;
-            }
-            // Done properly!
-        }
-
-        // TODO		-- optional -sort flag for "what is" commands needs to be worked out!
-        void process_what_is_command(const string & feature_name, const string & state_abbreviation){
-            //		7. what is command
-            //			- what is<tab><feature name><tab><state abbreviation>
-            //			- find every GIS record in the database file that matches the given <feature name> and <state abbreviation>
-            //			- for each record log only
-            //				- the offset (at which the record was found)
-            //				- the county name
-            //				- the primary latitude
-            //				- the primary longitude
-            cout << "args: " << feature_name << ", " << state_abbreviation << endl;
-        }
-
-        // TODO		-- optional -sort flag for "what is at" commands needs to be worked out!
-        void process_what_is_at_command(const string & geographic_coordinate_lat, const string & geographic_coordinate_long){
-            //		8. what is at command
-            //			- what is at<tab><geographic coordinate>
-            //			- find every GIS record in the database file that matches the given <geographic coordinate>,
-            //				- for each record log only log:
-            //					- the offset (at which the record was found)
-            //					- the feature name
-            //					- county name
-            //					- state abbreviation
-            cout << "args: " << geographic_coordinate_lat << ", " << geographic_coordinate_long << endl;
-        }
-
-        // TODO		-- optional -sort flag for "what is in" commands needs to be worked out!
-        void process_what_is_in_command(const string & geographic_coordinate_lat, const string & geographic_coordinate_long,
-                                        const string & half_height, const string & half_width, const string & filter, bool long_report){
-            //		9. What is in command
-            //			- what is in<tab><geographic coordinate><tab><half-height><tab><half-width>
-            //				- optional -long : display of a long listing of the relevant records
-            //									- The switch will be the first token following the name of the command.
-            //				- optional -filter [ pop | water | structure ]
-            //									- The switch and its modifier will be the first and second tokens following the name of the command.
-            //			- find every GIS record in the database file whose coordinates fall within the closed rectangle
-            //					(with the specified height and width [specified as seconds], centered at the <geographic coordinate>)
-            //				- if [-filter] provided: filter the set of matching records to only show those whose feature type field corresponds to the given filter specifier (Table 2 in the Appendix).
-            //					- if [-long] provided: for each record log every important non-empty field, nicely formatted and labeled.
-            //					- else: for each record only log
-            //						- the offset (at which the record was found)
-            //						- the feature name
-            //						- the state name
-            //						- the primary latitude
-            //						- the primary longitude
-            cout << "args: " << geographic_coordinate_lat << ", " << geographic_coordinate_long << ", +/-" << half_height << ", +/-" << half_width << ", filter: " << filter << ", long? "<< (long_report?"true":"false") << endl;
         }
 };
 
