@@ -97,6 +97,10 @@ class GISRecord {
         }
 
     public:
+        GISRecord( const GISRecord & rhs ) = default; // Copy Constructor
+        GISRecord( GISRecord && rhs ) = default; // Move Constructor
+        GISRecord & operator= ( const GISRecord & rhs ) = default; // Copy Assignment
+        GISRecord & operator= ( GISRecord && rhs ) = default; // Move Assignment
         explicit GISRecord(const string & raw_record){
             if(raw_record.empty()){
                 return;
@@ -138,6 +142,14 @@ class GISRecord {
 		}
 
 		~GISRecord() = default;  // This is the destructor declaration
+
+		double get_primary_lat_dec() const{
+            return primary_lat_dec;
+		}
+
+        double get_primary_long_dec() const{
+            return primary_long_dec;
+        }
 
 		GISRecord retrieve_record(const string& criteria) {
             return static_cast<GISRecord>(nullptr);
@@ -240,6 +252,10 @@ class Logger {
         ofstream log_file;
         int command_id = 0;
     public:
+        Logger( const Logger & rhs ) = delete; // Copy Constructor
+        Logger( Logger && rhs ) = default; // Move Constructor
+        Logger & operator= ( const Logger & rhs ) = delete;
+        Logger & operator= ( Logger && rhs ) = default;
         explicit Logger(const char* log_file_adr = nullptr): log_file(nullptr){
             this -> log_file = create_file(log_file_adr);
             this -> log_file << "GIS Program log:" << endl;
@@ -312,6 +328,14 @@ class World {
         double south_lat_dec;
         double north_lat_dec;
     public:
+        explicit World() {
+            west_long_dms = east_long_dms = south_lat_dms = north_lat_dms = "";
+            west_long_dec = east_long_dec = south_lat_dec = north_lat_dec = 0.0;
+        }
+        World( const World & rhs ) = default; // Copy Constructor
+        World( World && rhs ) = default; // Move Constructor
+        World & operator= ( const World & rhs ) = default; // Copy Constructor
+        World & operator= ( World && rhs ) = default; // Move Constructor
         World(const string& west_long, const string& east_long,
               const string& south_lat, const string& north_lat):
                   west_long_dms(west_long), east_long_dms(east_long),
@@ -350,6 +374,12 @@ class World {
             return os.str();
         }
 
+        bool is_in_world_boundaries(GISRecord & record) const{
+            bool lat_in =  south_lat_dec < record.get_primary_lat_dec() && record.get_primary_lat_dec() < north_lat_dec;
+            bool long_in = west_long_dec < record.get_primary_long_dec() && record.get_primary_long_dec() < east_long_dec;
+            return  lat_in && long_in;
+        }
+
         double static convert_dms_to_dec(const string& dms){
             if (dms.length()!= 7 && dms.length() != 8){
                 throw std::invalid_argument("DMS values are expected to be of sizes 7 or 8");
@@ -381,17 +411,16 @@ class SystemManager {
     // 		2. manages the initialization of the various system components.
     private:
         ofstream db_file;
-        World* world;
+        World world;
     public:
         ~SystemManager(){
             this -> db_file.close();
         }
-        //SystemManager( const SystemManager & rhs ) = default; // Copy Constructor
-        //SystemManager( SystemManager && rhs ) = default; // Move Constructor
-        //SystemManager & operator= ( const SystemManager & rhs )= default; // Copy Assignment
-        //SystemManager & operator= ( SystemManager && rhs )= default; // Move Assignment
-
-        explicit SystemManager(const char* db_file_adr = nullptr): db_file(nullptr), world(nullptr){
+        SystemManager( const SystemManager & rhs ) = delete; // Copy Constructor
+        SystemManager( SystemManager && rhs ) = delete; // Move Constructor
+        SystemManager & operator= ( const SystemManager & rhs ) = delete; // Copy Assignment
+        SystemManager & operator= ( SystemManager && rhs ) = default; // Move Assignment
+        explicit SystemManager(const char* db_file_adr = nullptr): db_file(nullptr), world(){
             this -> db_file = create_file(db_file_adr);
             this -> db_file << "DB_FILE:" << endl;
         }
@@ -426,9 +455,8 @@ class SystemManager {
             // 		3. World command (occur once):
             //			- The first non-comment line will specify the world boundaries (in DMS format) to be used:
             //			- world<tab><westLong><tab><eastLong><tab><southLat><tab><northLat>
-            World wd(west_long, east_long, south_lat, north_lat);
-            world = &wd;
-            return wd.print();
+            world = World(west_long, east_long, south_lat, north_lat);
+            return world.print();
         }
 
         void process_import_command(const string & gis_record_file_name){
@@ -444,8 +472,11 @@ class SystemManager {
             //GISRecord record(gis_records[10]);
             bool first_record_seen = false;
             for (const auto& gis_record: gis_records) {
-                if (first_record_seen)
+                if (first_record_seen) {
                     GISRecord record(gis_record);
+                    bool in_world = world.is_in_world_boundaries(record);
+                    cout << in_world << endl;
+                }
                 first_record_seen = true;
                 //delete &record;
             }
@@ -512,6 +543,10 @@ class CommandProcessor {
         vector<string> script_lines;
         SystemManager systemManager;
     public:
+        CommandProcessor( const CommandProcessor & rhs ) = delete; // Copy Constructor
+        CommandProcessor( CommandProcessor && rhs ) = delete; // Move Constructor
+        CommandProcessor & operator= ( const CommandProcessor & rhs ) = delete; // Copy Assignment
+        CommandProcessor & operator= ( CommandProcessor && rhs ) = default; // Move Assignment
         explicit CommandProcessor(const char* db_file, const char* script_file, const char* log_file):
                 logger(log_file), systemManager(db_file) {
             this -> script_lines = read_file(script_file);
