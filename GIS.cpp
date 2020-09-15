@@ -52,36 +52,49 @@ class GISRecord {
 	Since each GIS record occupies one line in the file, it is a trivial matter to locate and read a record 
 	given nothing but the file offset at which the record begins.
 	*/
-    private:
-    int feature_id;
-    string feature_name;
-    string feature_class;
-    string state_alpha;
-    string state_numeric;
-    string county_name;
-    string county_numeric;
-    string primary_lat_dms;
-    string primary_long_dms;
-    double primary_lat_dec;
-    double primary_long_dec;
-    string source_lat_dms;
-    string source_long_dms;
-    double source_lat_dec;
-    double source_long_dec;
-    int elev_in_m;
-    int elev_in_ft;
-    string map_name;
-    string date_created;
-    string date_edited;
 
-    static void alter_print_str(const string & name, const string & value, string & result,
-                                bool & empty_found, const string & delim = " --- "){
-        if (!value.empty()){
-            result += delim + name + value;
-        } else{
-            empty_found = true;
+    /*
+    Attributes:
+        1. GIS record file will contain two or more distinct records that have the same geographic coordinates.
+        2. coordinates are expressed in the usual DMS system (they cannot be primary/unique key).
+        3. name index : records will be indexed by the Feature Name and State (abbreviation) fields.
+        4. coordinate index: indexed by geographic coordinate.
+
+    */
+    private:
+        //Each index should have the ability to write a nicely-formatted display of itself to an output stream.
+        // ???
+        string name_index;
+        string coordinate_index;
+        int feature_id;
+        string feature_name;
+        string feature_class;
+        string state_alpha;
+        string state_numeric;
+        string county_name;
+        string county_numeric;
+        string primary_lat_dms;
+        string primary_long_dms;
+        double primary_lat_dec;
+        double primary_long_dec;
+        string source_lat_dms;
+        string source_long_dms;
+        double source_lat_dec;
+        double source_long_dec;
+        int elev_in_m;
+        int elev_in_ft;
+        string map_name;
+        string date_created;
+        string date_edited;
+
+        static void alter_print_str(const string & name, const string & value, string & result,
+                                    bool & empty_found, const string & delim = " --- "){
+            if (!value.empty()){
+                result += delim + name + value;
+            } else{
+                empty_found = true;
+            }
         }
-    }
 
     public:
         explicit GISRecord(const string & raw_record){
@@ -123,7 +136,9 @@ class GISRecord {
             date_edited = *itr++;
             //print();
 		}
+
 		~GISRecord() = default;  // This is the destructor declaration
+
 		GISRecord retrieve_record(const string& criteria) {
             return static_cast<GISRecord>(nullptr);
         }
@@ -157,18 +172,6 @@ class GISRecord {
                 return result + "\n";
             }
 		}
-
-    //Each index should have the ability to write a nicely-formatted display of itself to an output stream.
-		string name_index;
-		string coordinate_index;
-	/*
-	Attributes:
-		1. GIS record file will contain two or more distinct records that have the same geographic coordinates.
-		2. coordinates are expressed in the usual DMS system (they cannot be primary/unique key).
-		3. name index : records will be indexed by the Feature Name and State (abbreviation) fields.
-		4. coordinate index: indexed by geographic coordinate.
-
-	*/
 };
 
 class NameIndex {
@@ -298,7 +301,6 @@ Command get_command(const string& command_name){
     }
 }
 
-
 class World {
     private:
         string west_long_dms;
@@ -341,7 +343,8 @@ class World {
                 << "------------------------------------------------------------------------------------------" << endl
                 <<  log_tabs << "World boundaries are set to:"<< endl
                 <<  log_tabs << "           " << (north_lat_dec < 0? "-": "") << north_lat_dms.substr(0, 6) << endl
-                <<  log_tabs << (west_long_dec < 0? "-": "") << west_long_dms.substr(0, 6) << "              " << (east_long_dec < 0? "-": "") << east_long_dms.substr(0, 6) << endl
+                <<  log_tabs << (west_long_dec < 0? "-": "") << west_long_dms.substr(0, 6) << "              "
+                << (east_long_dec < 0? "-": "") << east_long_dms.substr(0, 6) << endl
                 <<  log_tabs << "           " << (south_lat_dec < 0? "-": "") << south_lat_dms.substr(0, 6) << endl
                 << "------------------------------------------------------------------------------------------" << endl;
             return os.str();
@@ -380,7 +383,9 @@ class SystemManager {
         ofstream db_file;
         World* world;
     public:
-        ~SystemManager() = default;
+        ~SystemManager(){
+            this -> db_file.close();
+        }
         //SystemManager( const SystemManager & rhs ) = default; // Copy Constructor
         //SystemManager( SystemManager && rhs ) = default; // Move Constructor
         //SystemManager & operator= ( const SystemManager & rhs )= default; // Copy Assignment
@@ -492,7 +497,9 @@ class SystemManager {
             //						- the state name
             //						- the primary latitude
             //						- the primary longitude
-            cout << "args: " << geographic_coordinate_lat << ", " << geographic_coordinate_long << ", +/-" << half_height << ", +/-" << half_width << ", filter: " << filter << ", long? "<< (long_report?"true":"false") << endl;
+            cout    << "args: " << geographic_coordinate_lat << ", " << geographic_coordinate_long << ", +/-"
+                    << half_height << ", +/-" << half_width << ", filter: " << filter
+                    << ", long? "<< (long_report?"true":"false") << endl;
         }
 };
 
@@ -583,14 +590,6 @@ class CommandProcessor {
                 default:
                     throw std::invalid_argument("Invalid command " + command + " provided!");
             }
-            //if (itr != arguments.end())
-            //    cout << "Arguments: ";
-            //while(itr != arguments.end()){
-            //    cout << *itr++ << endl;
-            //}
-            //for(const auto& command_part: command_parts)
-            //    cout << command_part << endl;
-
         }
 };
 
@@ -600,15 +599,6 @@ int main(int argc, char const *argv[]) {
 		command_format += "\t\t\t./GIS <database file name> <command script file name> <log file name>";
 		throw std::invalid_argument(command_format);
 	}
-	//ofstream db_file = create_file();
     CommandProcessor cp(argv[1], argv[2], argv[3]);
-
-
-
-	/*    stuff    */
-	//db_file << "Please write this text to a file.\n this text is written using C++\n";
-	//log_file << "Test data";
-	//db_file.close();
-	//log_file.close();
 	return 0;
 }
