@@ -200,6 +200,12 @@ class NameIndex {
 	// 		The table will resize itself automatically, by doubling its size whenever the table becomes 70% full.
 
 	// You must be able to display the contents of the hash table in a readable manner.
+    public:
+        ~NameIndex() = default;
+        NameIndex( const NameIndex & rhs ) = default; // Copy Constructor
+        NameIndex( NameIndex && rhs ) = default; // Move Constructor
+        NameIndex & operator= ( const NameIndex & rhs ) = default; // Copy Assignment
+        NameIndex & operator= ( NameIndex && rhs ) = default; // Move Assignment
 };
 
 class CoordinateIndex {
@@ -222,6 +228,12 @@ class CoordinateIndex {
 	//		the relationships between its nodes, and the data objects in the leaf nodes.
 
 	//Quadtree children are printed in the order SW  SE  NE  NW
+    public:
+        ~CoordinateIndex() = default;
+        CoordinateIndex( const CoordinateIndex & rhs ) = default; // Copy Constructor
+        CoordinateIndex( CoordinateIndex && rhs ) = default; // Move Constructor
+        CoordinateIndex & operator= ( const CoordinateIndex & rhs ) = default; // Copy Assignment
+        CoordinateIndex & operator= ( CoordinateIndex && rhs ) = default; // Move Assignment
 };
 
 class BufferPool {
@@ -236,6 +248,10 @@ class BufferPool {
 	// You must be able to display the contents of the buffer pool, listed from MRU to LRU entry, in a readable manner.
 	public:
 		BufferPool() = default;
+        BufferPool( const BufferPool & rhs ) = default; // Copy Constructor
+        BufferPool( BufferPool && rhs ) = default; // Move Constructor
+        BufferPool & operator= ( const BufferPool & rhs ) = default; // Copy Assignment
+        BufferPool & operator= ( BufferPool && rhs ) = default; // Move Assignment
 		~BufferPool() = default;
 };
 
@@ -475,7 +491,6 @@ class SystemManager {
                 if (first_record_seen) {
                     GISRecord record(gis_record);
                     bool in_world = world.is_in_world_boundaries(record);
-                    cout << in_world << endl;
                 }
                 first_record_seen = true;
                 //delete &record;
