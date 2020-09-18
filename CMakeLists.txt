@@ -1,1 +1,1 @@
-add_executable(GIS GIS.cpp)
+add_executable(GIS GIS.cpp QuadTree.cpp CommandProcessor.cpp CommandProcessor.h  SystemManager.cpp SystemManager.h GISRecord.cpp GISRecord.h Logger.cpp Logger.h World.cpp World.h NameIndex.cpp NameIndex.h CoordinateIndex.cpp CoordinateIndex.h BufferPool.cpp BufferPool.h FileManager.cpp FileManager.h)
