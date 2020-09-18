@@ -8,6 +8,7 @@
 #include <cmath>
 #include <string>
 #include <sstream>
+#include <vector>
 
 struct Point {
     double latitude;
@@ -52,20 +53,22 @@ class PRQuadTree {
     // Hold details of the boundary of this node
         // The minimum resolution is one second of arc.
         constexpr static double RESOLUTION = 1 / 3600.0;
+        const static int BUCKET_SIZE = 4;
         Point topLeft;
         Point botRight;
         // Contains details of node
-        Node n;
+        std::vector<Node> bucket;
         // Children of this tree
         PRQuadTree *topLeftTree;
         PRQuadTree *topRightTree;
         PRQuadTree *botLeftTree;
         PRQuadTree *botRightTree;
+        PRQuadTree* expand_tree_for_node(Node*);
 
     public:
         PRQuadTree();
         PRQuadTree(Point topL, Point botR);
-        void insert(Node*);
+        bool insert(Node*);
         Node* search(Point);
         bool inBoundary(Point);
         std::string print() const;

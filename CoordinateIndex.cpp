@@ -12,7 +12,9 @@ void CoordinateIndex::updateWorld(const World& wd) {
 
 void CoordinateIndex::index_record(double latitude, double longitude, int record_offset){
     Node a(Point(latitude, longitude), record_offset);
-    index.insert(&a);
+    if(index.insert(&a)){
+        index_size++;
+    }
 }
 
 int CoordinateIndex::get_index_size() const {
