@@ -25,25 +25,27 @@ struct Point {
 
 struct Node {
     Point pos;
-    int record_offset;
+    std::vector<int> record_offsets;
+    bool allocated = false;
 
-    Node(Point _pos, int _record_offset) {
+    explicit Node(Point _pos) {
         pos = _pos;
-        record_offset = _record_offset;
+        allocated = true;
     }
 
-    Node() {
-        record_offset = -1;
-    }
+    Node() = default;
 
-    bool is_allocated() const {
-        return record_offset != -1;
+    void insert(int _record_offset){
+        record_offsets.insert(record_offsets.end(), _record_offset);
     }
 
     std::string print() const {
         std::ostringstream os;
         os.precision(5);
-        os << "Point["<< pos.latitude << "," << pos.longitude << "] : " << record_offset << std::endl;
+        os << "Point["<< pos.latitude << "," << pos.longitude << "] : |";
+        for(auto& record_offset: record_offsets)
+            os << record_offset << "|";
+        os << std::endl;
         return os.str();
     }
 };
@@ -72,7 +74,7 @@ class PRQuadTree {
         bool insert(Node*);
         Node* search(Point);
         bool inBoundary(Point);
-        std::string print() const;
+        std::string print(int level = 0, const std::string& parent_prefix = "") const;
 };
 
 

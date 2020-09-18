@@ -30,7 +30,7 @@ bool PRQuadTree::insert(Node *node) {
         return false;
     if (!is_leaf_node()){
         return expand_tree_for_node(node)->insert(node);
-    } else if (bucket.size() < BUCKET_SIZE && is_leaf_node()){
+    } else if (bucket.size() < BUCKET_SIZE){
         bucket.insert(bucket.end(), *node);
         return true;
     } else if (abs(topLeft.latitude - botRight.latitude) >= RESOLUTION
@@ -55,7 +55,7 @@ Node* PRQuadTree::search(Point p) {
             if (n.pos.latitude == p.latitude && n.pos.longitude == p.longitude)
                 return &n;
         }
-        throw std::invalid_argument("Ideally shouldn't reach here!");
+        return nullptr;
     }
     if ((topLeft.latitude + botRight.latitude) / 2 >= p.latitude) {
         // Indicates topLeftTree
@@ -89,18 +89,22 @@ bool PRQuadTree::inBoundary(Point p) {
             p.longitude >= topLeft.longitude && p.longitude <= botRight.longitude);
 }
 
-std::string PRQuadTree::print() const {
+std::string PRQuadTree::print(int level, const std::string& parent_prefix) const {
     std::ostringstream os;
-    for (auto& n : bucket)
-        os << n.print() << std::endl;
+    for (auto& n : bucket) {
+        for (int i = 0; i < level-1; ++i) {
+            os << "-";
+        }
+        os << "|" << parent_prefix << "|" << n.print();
+    }
     if (topLeftTree != nullptr)
-        os << topLeftTree -> print();
+        os << topLeftTree -> print(level + 1, parent_prefix + "<NW>");
     if (topRightTree != nullptr)
-        os << topRightTree -> print();
+        os << topRightTree -> print(level + 1, parent_prefix + "<NE>");
     if (botLeftTree != nullptr)
-        os << botLeftTree -> print();
+        os << botLeftTree -> print(level + 1, parent_prefix + "<SW>");
     if (botRightTree != nullptr)
-        os << botRightTree -> print();
+        os << botRightTree -> print(level + 1, parent_prefix + "<SE>");
     return os.str();
 }
 
