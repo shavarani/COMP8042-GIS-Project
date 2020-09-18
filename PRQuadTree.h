@@ -64,6 +64,7 @@ class PRQuadTree {
         PRQuadTree *botLeftTree;
         PRQuadTree *botRightTree;
         PRQuadTree* expand_tree_for_node(Node*);
+        bool is_leaf_node();
 
     public:
         PRQuadTree();

@@ -28,17 +28,19 @@ bool PRQuadTree::insert(Node *node) {
     // Current quad cannot contain it
     if (!inBoundary(node->pos))
         return false;
-    // We are at a quad of unit area
-    // We cannot subdivide this quad further
-    if (abs(topLeft.latitude - botRight.latitude) <= RESOLUTION
-            && abs(topLeft.longitude - botRight.longitude) <= RESOLUTION) {
-        if (bucket.size() < BUCKET_SIZE){
-            bucket.insert(bucket.end(), *node);
-            return true;
-        } else
-            return false;
-    }
-    return expand_tree_for_node(node)->insert(node);
+    if (!is_leaf_node()){
+        return expand_tree_for_node(node)->insert(node);
+    } else if (bucket.size() < BUCKET_SIZE && is_leaf_node()){
+        bucket.insert(bucket.end(), *node);
+        return true;
+    } else if (abs(topLeft.latitude - botRight.latitude) >= RESOLUTION
+               && abs(topLeft.longitude - botRight.longitude) >= RESOLUTION){
+        for (auto& n : bucket)
+            expand_tree_for_node(&n)->insert(&n);
+        bucket.clear();
+        return expand_tree_for_node(node)->insert(node);
+    } else
+        return false;
 }
 
 // Find a node in a quadtree
@@ -137,4 +139,8 @@ PRQuadTree* PRQuadTree::expand_tree_for_node(Node* node) {
             return botRightTree;
         }
     }
+}
+
+bool PRQuadTree::is_leaf_node() {
+    return topLeftTree == nullptr && topRightTree == nullptr && botLeftTree == nullptr && botRightTree == nullptr;
 }
