@@ -19,8 +19,8 @@ unsigned long elf_hash (const std::string & feature_name, const std::string & st
     return h;
 }
 
-void NameIndex::index_record(GISRecord &record, int record_offset){
-    unsigned long key = elf_hash(record.get_feature_name(), record.get_state_alpha());
+void NameIndex::index_record(std::string feature_name, std::string state_alpha, int record_offset){
+    unsigned long key = elf_hash(feature_name, state_alpha);
     if(!index.count(key))
         index.insert(std::pair<unsigned long,std::set<int>>(key, {}));
     index[key].insert(record_offset);

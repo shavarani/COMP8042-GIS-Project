@@ -5,7 +5,6 @@
 #ifndef FINAL_PROJECT_COORDINATEINDEX_H
 #define FINAL_PROJECT_COORDINATEINDEX_H
 
-#include "GISRecord.h"
 #include "PRQuadTree.h"
 #include "World.h"
 
@@ -31,7 +30,6 @@ class CoordinateIndex {
     //Quadtree children are printed in the order SW  SE  NE  NW
     private:
         int index_size = 0.0;
-        World world;
         PRQuadTree index;
     public:
         ~CoordinateIndex() = default;
@@ -43,9 +41,11 @@ class CoordinateIndex {
 
         void updateWorld(const World& wd);
 
-        void index_record(GISRecord &record, int record_offset);
+        void index_record(double latitude, double longitude, int record_offset);
 
         int get_index_size() const;
+
+        std::string print() const;
 };
 
 

@@ -7,7 +7,6 @@
 
 #include <map>
 #include <set>
-#include "GISRecord.h"
 
 class NameIndex {
     // will use a hash table for its physical organization.
@@ -39,7 +38,7 @@ public:
     NameIndex & operator= ( const NameIndex & rhs ) = default; // Copy Assignment
     NameIndex & operator= ( NameIndex && rhs ) = default; // Move Assignment
 
-    void index_record(GISRecord &record, int record_offset);
+    void index_record(std::string feature_name, std::string state_alpha, int record_offset);
     int get_index_size() const;
     int get_longest_probe_sequence() const;
     int get_average_name_length() const;
