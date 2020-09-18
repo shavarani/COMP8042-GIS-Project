@@ -61,6 +61,19 @@ bool World::is_in_world_boundaries(GISRecord & record) const{
     return  lat_in && long_in;
 }
 
+double World::get_west_long_dec() const{
+    return west_long_dec;
+}
+double World::get_east_long_dec() const{
+    return east_long_dec;
+}
+double World::get_south_lat_dec() const{
+    return south_lat_dec;
+}
+double World::get_north_lat_dec() const{
+    return north_lat_dec;
+}
+
 string World::print() {
     string log_tabs = "\t\t\t\t\t\t";
     std::ostringstream os;

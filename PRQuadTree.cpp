@@ -32,46 +32,46 @@ void PRQuadTree::insert(Node *node) {
         return;
     // We are at a quad of unit area
     // We cannot subdivide this quad further
-    if (abs(topLeft.x - botRight.x) <= 1 &&
-        abs(topLeft.y - botRight.y) <= 1) {
+    if (abs(topLeft.latitude - botRight.latitude) <= 1 &&
+        abs(topLeft.longitude - botRight.longitude) <= 1) {
         if (n == nullptr)
             n = node;
         return;
     }
-    if ((topLeft.x + botRight.x) / 2 >= node->pos.x) {
+    if ((topLeft.latitude + botRight.latitude) / 2 >= node->pos.latitude) {
         // Indicates topLeftTree
-        if ((topLeft.y + botRight.y) / 2 >= node->pos.y) {
+        if ((topLeft.longitude + botRight.longitude) / 2 >= node->pos.longitude) {
             if (topLeftTree == nullptr)
                 topLeftTree = new PRQuadTree(
-                        Point(topLeft.x, topLeft.y),
-                        Point((topLeft.x + botRight.x) / 2,
-                              (topLeft.y + botRight.y) / 2));
+                        Point(topLeft.latitude, topLeft.longitude),
+                        Point((topLeft.latitude + botRight.latitude) / 2,
+                              (topLeft.longitude + botRight.longitude) / 2));
             topLeftTree->insert(node);
         } else { // Indicates botLeftTree
             if (botLeftTree == nullptr)
                 botLeftTree = new PRQuadTree(
-                        Point(topLeft.x,
-                              (topLeft.y + botRight.y) / 2),
-                        Point((topLeft.x + botRight.x) / 2,
-                              botRight.y));
+                        Point(topLeft.latitude,
+                              (topLeft.longitude + botRight.longitude) / 2),
+                        Point((topLeft.latitude + botRight.latitude) / 2,
+                              botRight.longitude));
             botLeftTree->insert(node);
         }
     }
     else {
-        if ((topLeft.y + botRight.y) / 2 >= node->pos.y) { // Indicates topRightTree
+        if ((topLeft.longitude + botRight.longitude) / 2 >= node->pos.longitude) { // Indicates topRightTree
             if (topRightTree == nullptr)
                 topRightTree = new PRQuadTree(
-                        Point((topLeft.x + botRight.x) / 2,
-                              topLeft.y),
-                        Point(botRight.x,
-                              (topLeft.y + botRight.y) / 2));
+                        Point((topLeft.latitude + botRight.latitude) / 2,
+                              topLeft.longitude),
+                        Point(botRight.latitude,
+                              (topLeft.longitude + botRight.longitude) / 2));
             topRightTree->insert(node);
         } else { // Indicates botRightTree
             if (botRightTree == nullptr)
                 botRightTree = new PRQuadTree(
-                        Point((topLeft.x + botRight.x) / 2,
-                              (topLeft.y + botRight.y) / 2),
-                        Point(botRight.x, botRight.y));
+                        Point((topLeft.latitude + botRight.latitude) / 2,
+                              (topLeft.longitude + botRight.longitude) / 2),
+                        Point(botRight.latitude, botRight.longitude));
             botRightTree->insert(node);
         }
     }
@@ -86,9 +86,9 @@ Node* PRQuadTree::search(Point p) {
     // We cannot subdivide this quad further
     if (n != nullptr)
         return n;
-    if ((topLeft.x + botRight.x) / 2 >= p.x) {
+    if ((topLeft.latitude + botRight.latitude) / 2 >= p.latitude) {
         // Indicates topLeftTree
-        if ((topLeft.y + botRight.y) / 2 >= p.y) {
+        if ((topLeft.longitude + botRight.longitude) / 2 >= p.longitude) {
             if (topLeftTree == nullptr)
                 return nullptr;
             return topLeftTree->search(p);
@@ -100,7 +100,7 @@ Node* PRQuadTree::search(Point p) {
     }
     else {
         // Indicates topRightTree
-        if ((topLeft.y + botRight.y) / 2 >= p.y) {
+        if ((topLeft.longitude + botRight.longitude) / 2 >= p.longitude) {
             if (topRightTree == nullptr)
                 return nullptr;
             return topRightTree->search(p);
@@ -114,8 +114,6 @@ Node* PRQuadTree::search(Point p) {
 
 // Check if current quadtree contains the point
 bool PRQuadTree::inBoundary(Point p) {
-    return (p.x >= topLeft.x &&
-            p.x <= botRight.x &&
-            p.y >= topLeft.y &&
-            p.y <= botRight.y);
+    return (p.latitude >= topLeft.latitude && p.latitude <= botRight.latitude &&
+            p.longitude >= topLeft.longitude && p.longitude <= botRight.longitude);
 }

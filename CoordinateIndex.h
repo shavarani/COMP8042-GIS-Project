@@ -32,6 +32,7 @@ class CoordinateIndex {
     private:
         int index_size = 0.0;
         World world;
+        PRQuadTree index;
     public:
         ~CoordinateIndex() = default;
         CoordinateIndex() = default;
@@ -39,6 +40,8 @@ class CoordinateIndex {
         CoordinateIndex( CoordinateIndex && rhs ) = default; // Move Constructor
         CoordinateIndex & operator= ( const CoordinateIndex & rhs ) = default; // Copy Assignment
         CoordinateIndex & operator= ( CoordinateIndex && rhs ) = default; // Move Assignment
+
+        void updateWorld(const World& wd);
 
         void index_record(GISRecord &record, int record_offset);
 

@@ -22,6 +22,7 @@ string SystemManager::process_world_command(const string& west_long, const strin
     //			- The first non-comment line will specify the world boundaries (in DMS format) to be used:
     //			- world<tab><westLong><tab><eastLong><tab><southLat><tab><northLat>
     world = World(west_long, east_long, south_lat, north_lat);
+    c_index.updateWorld(world);
     return world.print();
 }
 

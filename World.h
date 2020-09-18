@@ -30,6 +30,10 @@ class World {
         World(const string& west_long, const string& east_long, const string& south_lat, const string& north_lat);
         string print();
         bool is_in_world_boundaries(GISRecord & record) const;
+        double get_west_long_dec() const;
+        double get_east_long_dec() const;
+        double get_south_lat_dec() const;
+        double get_north_lat_dec() const;
 };
 
 

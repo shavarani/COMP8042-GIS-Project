@@ -8,27 +8,27 @@
 #include <cmath>
 
 struct Point {
-    int x;
-    int y;
-    Point(int _x, int _y) {
-        x = _x;
-        y = _y;
+    double latitude;
+    double longitude;
+    Point(double _lat, double _long) {
+        latitude = _lat;
+        longitude = _long;
     }
     Point() {
-        x = 0;
-        y = 0;
+        latitude = 0;
+        longitude = 0;
     }
 };
 
 struct Node {
     Point pos;
-    int data;
-    Node(Point _pos, int _data) {
+    int record_offset;
+    Node(Point _pos, int _record_offset) {
         pos = _pos;
-        data = _data;
+        record_offset = _record_offset;
     }
     Node() {
-        data = 0;
+        record_offset = 0;
     }
 };
 
