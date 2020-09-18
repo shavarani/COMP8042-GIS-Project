@@ -1,11 +1,13 @@
 //
-// Created by hassan on 2020-09-17.
+// Created by Hassan S. Shavarani
 //
 
 #ifndef FINAL_PROJECT_COORDINATEINDEX_H
 #define FINAL_PROJECT_COORDINATEINDEX_H
 
 #include "GISRecord.h"
+#include "PRQuadTree.h"
+#include "World.h"
 
 class CoordinateIndex {
     // Will use a bucket PR quadtree for the physical organization.
@@ -29,6 +31,7 @@ class CoordinateIndex {
     //Quadtree children are printed in the order SW  SE  NE  NW
     private:
         int index_size = 0.0;
+        World world;
     public:
         ~CoordinateIndex() = default;
         CoordinateIndex() = default;
