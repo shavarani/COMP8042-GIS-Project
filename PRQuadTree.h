@@ -32,12 +32,16 @@ struct Node {
     }
 
     Node() {
-        record_offset = 0;
+        record_offset = -1;
+    }
+
+    bool is_allocated() const {
+        return record_offset != -1;
     }
 
     std::string print() const {
         std::ostringstream os;
-        os.precision(3);
+        os.precision(5);
         os << "Point["<< pos.latitude << "," << pos.longitude << "] : " << record_offset << std::endl;
         return os.str();
     }
@@ -51,7 +55,7 @@ class PRQuadTree {
         Point topLeft;
         Point botRight;
         // Contains details of node
-        Node *n;
+        Node n;
         // Children of this tree
         PRQuadTree *topLeftTree;
         PRQuadTree *topRightTree;

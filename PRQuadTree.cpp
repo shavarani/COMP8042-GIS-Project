@@ -4,18 +4,16 @@
 
 #include "PRQuadTree.h"
 
-PRQuadTree::PRQuadTree() {
+PRQuadTree::PRQuadTree(): n(){
     topLeft = Point(0, 0);
     botRight = Point(0, 0);
-    n = nullptr;
     topLeftTree = nullptr;
     topRightTree = nullptr;
     botLeftTree = nullptr;
     botRightTree = nullptr;
 }
 
-PRQuadTree::PRQuadTree(Point topL, Point botR) {
-    n = nullptr;
+PRQuadTree::PRQuadTree(Point topL, Point botR): n() {
     topLeftTree = nullptr;
     topRightTree = nullptr;
     botLeftTree = nullptr;
@@ -34,8 +32,8 @@ void PRQuadTree::insert(Node *node) {
     // We cannot subdivide this quad further
     if (abs(topLeft.latitude - botRight.latitude) <= RESOLUTION
             && abs(topLeft.longitude - botRight.longitude) <= RESOLUTION) {
-        if (n == nullptr)
-            n = node;
+        if (!n.is_allocated())
+            n = *node;
         return;
     }
     if ((topLeft.latitude + botRight.latitude) / 2.0 <= node->pos.latitude) {
@@ -81,8 +79,8 @@ Node* PRQuadTree::search(Point p) {
         return nullptr;
     // We are at a quad of unit length
     // We cannot subdivide this quad further
-    if (n != nullptr)
-        return n;
+    if (n.is_allocated())
+        return &n;
     if ((topLeft.latitude + botRight.latitude) / 2 >= p.latitude) {
         // Indicates topLeftTree
         if ((topLeft.longitude + botRight.longitude) / 2 >= p.longitude) {
@@ -117,8 +115,8 @@ bool PRQuadTree::inBoundary(Point p) {
 
 std::string PRQuadTree::print() const {
     std::ostringstream os;
-    if (n != nullptr)
-        os << n->print() << std::endl;
+    if (n.is_allocated())
+        os << n.print() << std::endl;
     if (topLeftTree != nullptr)
         os << topLeftTree -> print();
     if (topRightTree != nullptr)
