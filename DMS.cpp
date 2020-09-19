@@ -113,6 +113,11 @@ struct DMS {
                 ((abs(second - a.second) + abs(minute - a.minute) * 60 + abs(degree - a.degree) * 3600) > 1);
         }
 
+        int total_seconds() const{
+            int neg = (is_negative()? -1: 1);
+            return neg * (second + minute * 60 + degree * 3600);
+        }
+
         // This operator is reserved for averaging two DMS objects
         DMS operator%(const DMS& a) const{
             DMS result;

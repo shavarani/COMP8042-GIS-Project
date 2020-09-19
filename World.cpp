@@ -55,9 +55,9 @@ string World::str() {
         << "Latitude/longitude values in index entries are shown as signed integers, in total seconds." <<endl
         << "------------------------------------------------------------------------------------------" << endl
         <<  log_tabs << "World boundaries are set to:"<< endl
-        <<  log_tabs << "           " << north_lat_dms.str() << endl
-        <<  log_tabs << west_long_dms.str() <<  "              " << east_long_dms.str() << endl
-        <<  log_tabs << "           " << south_lat_dms.str() << endl
+        <<  log_tabs << "           " << north_lat_dms.total_seconds() << endl
+        <<  log_tabs << west_long_dms.total_seconds() <<  "              " << east_long_dms.total_seconds() << endl
+        <<  log_tabs << "           " << south_lat_dms.total_seconds() << endl
         << "------------------------------------------------------------------------------------------" << endl;
     return os.str();
 }
