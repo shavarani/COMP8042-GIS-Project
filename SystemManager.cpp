@@ -123,7 +123,7 @@ string SystemManager::process_debug_command(const string & component_name){
     } else if (component_name == "quad") {
         return c_index.str();
     } else if (component_name == "hash") {
-        cout << "debugging " + component_name << endl;
+        return n_index.str();
     } else if (component_name == "pool") {
         cout << "debugging " + component_name << endl;
     } else {

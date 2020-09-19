@@ -7,6 +7,35 @@
 
 #include <map>
 #include <set>
+#include <sstream>
+
+struct NameIndexElement {
+    private:
+        std::string key;
+        std::set<int> record_offsets;
+    public:
+        NameIndexElement() = default;
+        explicit NameIndexElement(const std::string & k): record_offsets(){
+            key = k;
+        }
+
+        void insert(int record_offset) {
+            record_offsets.insert(record_offset);
+        }
+        std::string str(){
+            std::ostringstream os;
+            os << "[" << key << ", [";
+            int cnt = 0;
+            for (const auto& i : record_offsets) {
+                os << i;
+                if (++cnt < record_offsets.size()) {
+                    os << ",";
+                }
+            }
+            os << "]]";
+            return os.str();
+        }
+};
 
 class NameIndex {
     // will use a hash table for its physical organization.
@@ -26,7 +55,7 @@ class NameIndex {
         int table_size = 1024;
         double load_factor = 0.0;
         // TODO implement a hashmap here!
-        std::map<unsigned long, std::set<int>> index;
+        std::map<unsigned long, NameIndexElement> index;
         int index_size = 0.0;
         int longest_probe_sequence = 0.0;
         int all_name_length = 0.0;
@@ -43,7 +72,7 @@ public:
     int get_index_size() const;
     int get_longest_probe_sequence() const;
     int get_average_name_length() const;
-    std::string str();
+    std::string str() const;
 };
 
 

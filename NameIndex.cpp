@@ -21,8 +21,10 @@ unsigned long elf_hash (const std::string & feature_name, const std::string & st
 
 void NameIndex::index_record(const std::string& feature_name, const std::string& state_alpha, int record_offset){
     unsigned long key = elf_hash(feature_name, state_alpha);
-    if(!index.count(key))
-        index.insert(std::pair<unsigned long,std::set<int>>(key, {}));
+    if(!index.count(key)) {
+        NameIndexElement e(feature_name + ":" + state_alpha);
+        index.insert(std::pair<unsigned long, NameIndexElement>(key, e));
+    }
     index[key].insert(record_offset);
     all_name_length += feature_name.length();
     index_size++;
@@ -43,6 +45,17 @@ int NameIndex::get_average_name_length() const {
         return 0;
 }
 
-std::string NameIndex::str(){
-    return "";
+std::string NameIndex::str() const{
+    std::ostringstream os;
+    os  << "Format of display is " << std::endl << "Slot number: data record" << std::endl
+        << "Current table size is " << table_size << std::endl << "Number of elements in table is " << index_size
+        << std::endl << std::endl;
+    auto it = index.begin();
+    while (it != index.end()) {
+        unsigned long key = it->first;
+        NameIndexElement elem = it->second;
+        os << "\t" << key << ": " << elem.str() << std::endl;
+        it++;
+    }
+    return os.str();
 }
