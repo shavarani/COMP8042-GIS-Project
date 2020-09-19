@@ -50,6 +50,7 @@ class PRQuadTree {
     // Hold details of the boundary of this node
         // The minimum resolution is one second of arc.
         const static int BUCKET_SIZE = 4;
+        int tree_size = 0;
         Point topLeft;
         Point botRight;
         // Contains details of node
@@ -61,6 +62,8 @@ class PRQuadTree {
         PRQuadTree *botRightTree;
         PRQuadTree* expand_tree_for_node(Node*);
         bool is_leaf_node() const;
+        void visualize_rcr(int visualization_matrix[], int row_start, int row_end,
+                           int col_start, int col_end, int array_rows, int array_cols) const;
 
     public:
         PRQuadTree();
@@ -69,6 +72,7 @@ class PRQuadTree {
         Node* search(Point);
         bool inBoundary(Point);
         std::string str(int level = 0, const std::string& parent_prefix = "") const;
+        std::string visualize(int cell_rows, int cell_cols) const;
 };
 
 

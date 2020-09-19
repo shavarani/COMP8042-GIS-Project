@@ -35,3 +35,7 @@ int CoordinateIndex::get_index_size() const {
 std::string CoordinateIndex::str() const {
     return index.str();
 }
+
+std::string CoordinateIndex::visualize() const {
+    return index.visualize(40, 150);
+}

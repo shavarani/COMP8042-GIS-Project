@@ -31,15 +31,21 @@ bool PRQuadTree::insert(Node *node) {
     if (!inBoundary(node->pos))
         return false;
     if (!is_leaf_node()){
-        return expand_tree_for_node(node)->insert(node);
+        bool res = expand_tree_for_node(node)->insert(node);
+        if (res)
+            tree_size += 1;
+        return res;
     } else if (bucket.size() < BUCKET_SIZE){
         bucket.insert(bucket.end(), *node);
+        tree_size += 1;
         return true;
     } else if (topLeft.latitude != botRight.latitude && topLeft.longitude != botRight.longitude){
         for (auto& n : bucket)
             expand_tree_for_node(&n)->insert(&n);
         bucket.clear();
-        return expand_tree_for_node(node)->insert(node);
+        bool res = expand_tree_for_node(node)->insert(node);
+        tree_size += 1;
+        return res;
     } else
         return false;
 }
@@ -90,6 +96,56 @@ Node* PRQuadTree::search(Point p) {
 bool PRQuadTree::inBoundary(Point p) {
     return (p.latitude <= topLeft.latitude && p.latitude >= botRight.latitude &&
             p.longitude >= topLeft.longitude && p.longitude <= botRight.longitude);
+}
+
+void PRQuadTree::visualize_rcr(int visualization_matrix[], int row_start, int row_end, int col_start, int col_end, int array_rows, int array_cols) const{
+    int row_ind = (row_start+row_end) / 2;
+    int col_ind = (col_start+col_end) / 2;
+    if (is_leaf_node() || row_end - row_start == 1|| col_end - col_start == 1){
+        visualization_matrix[row_ind * array_cols + col_ind] = tree_size;
+        return;
+    }
+    if (topLeftTree != nullptr)
+        topLeftTree->visualize_rcr(visualization_matrix, row_start, row_ind, col_start, col_ind, array_rows, array_cols);
+    if (topRightTree != nullptr)
+        topRightTree->visualize_rcr(visualization_matrix, row_start, row_ind, col_ind, col_end, array_rows, array_cols);
+    if (botLeftTree != nullptr)
+        botLeftTree->visualize_rcr(visualization_matrix, row_ind, row_end, col_start, col_ind, array_rows, array_cols);
+    if (botRightTree != nullptr)
+        botRightTree->visualize_rcr(visualization_matrix, row_ind, row_end, col_ind, col_end, array_rows, array_cols);
+
+}
+
+std::string PRQuadTree::visualize(int cell_rows, int cell_cols) const{
+    int visualization_matrix[cell_rows * cell_cols];
+    for (int i = 0; i < cell_rows; ++i) {
+        for (int j = 0; j < cell_cols; ++j) {
+            visualization_matrix[i * cell_cols + j] = 0;
+        }
+    }
+    visualize_rcr(visualization_matrix, 0, cell_rows, 0, cell_cols, cell_rows, cell_cols);
+    std::ostringstream os;
+    os << "+";
+    for (int i = 0; i < cell_cols; ++i)
+        os << "-";
+    os << "+" << endl;
+    for (int i = 0; i < cell_rows; ++i) {
+        os << "|";
+        for (int j = 0; j < cell_cols; ++j) {
+            int val = visualization_matrix[i * cell_cols + j];
+            if (val == 0){
+                os << " ";
+            } else {
+                os << val;
+            }
+        }
+        os << "|" << endl;
+    }
+    os << "+";
+    for (int i = 0; i < cell_cols; ++i)
+        os << "-";
+    os << "+" << endl;
+    return os.str();
 }
 
 std::string PRQuadTree::str(int level, const std::string& parent_prefix) const {

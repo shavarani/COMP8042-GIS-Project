@@ -119,7 +119,7 @@ string SystemManager::process_debug_command(const string & component_name){
     //			- Log the contents of the specified index structure
     //				- include key values and file offsets
     if (component_name == "world") {
-        cout << "debugging " + component_name << endl;
+        return c_index.visualize();
     } else if (component_name == "quad") {
         return c_index.str();
     } else if (component_name == "hash") {

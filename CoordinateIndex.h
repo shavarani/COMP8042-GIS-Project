@@ -46,6 +46,7 @@ class CoordinateIndex {
         int get_index_size() const;
 
         std::string str() const;
+        std::string visualize() const;
 };
 
 
