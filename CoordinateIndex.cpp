@@ -16,8 +16,9 @@ void CoordinateIndex::index_record(DMS latitude, DMS longitude, int record_offse
     Point pt(std::move(latitude), std::move(longitude));
     Node* result = index.search(pt);
     if (result != nullptr){
-        result->insert(record_offset);
-        index_size++;
+        throw std::invalid_argument("This has never happened!");
+        // result->insert(record_offset);
+        // index_size++;
     } else {
         Node a(pt);
         a.insert(record_offset);

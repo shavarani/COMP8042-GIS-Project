@@ -23,6 +23,13 @@ struct DMS {
         std::string raw;
     public:
         DMS(const std::string& dms) {
+            if (dms == "Unknown") {
+                direction = NULL_ISLAND;
+                degree = 0;
+                minute = 0;
+                second = 0;
+                return;
+            }
             if (dms.length()!= 7 && dms.length() != 8){
                 throw std::invalid_argument("DMS values are expected to be of sizes 7 or 8");
             }
