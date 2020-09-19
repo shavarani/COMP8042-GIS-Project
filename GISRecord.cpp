@@ -28,8 +28,8 @@ GISRecord::GISRecord(const string & raw_record){
     state_numeric = *itr++;
     county_name = *itr++;
     county_numeric = *itr++;
-    primary_lat_dms = *itr++;
-    primary_long_dms = *itr++;
+    primary_lat_dms = DMS(*itr++);
+    primary_long_dms = DMS(*itr++);
     string plad = *itr++;
     string plod = *itr++;
     //Note: Records showing "Unknown" and zeros for the latitude and longitude DMS and decimal fields,
@@ -38,8 +38,10 @@ GISRecord::GISRecord(const string & raw_record){
     //do not reference the actual geographic coordinates at 0 latitude, 0 longitude.
     primary_lat_dec = plad.empty()? 0.0 : std::stof(plad);
     primary_long_dec = plod.empty()? 0.0 : std::stof(plod);
-    source_lat_dms = *itr++;
-    source_long_dms = *itr++;
+    string ladms = *itr++;
+    string lodms = *itr++;
+    source_lat_dms = ladms.empty()? DMS(): DMS(ladms);
+    source_long_dms = lodms.empty()? DMS():DMS(lodms);
     string slad = *itr++;
     string slod = *itr++;
     source_lat_dec = slad.empty()? 0.0 : std::stof(slad);
@@ -51,15 +53,14 @@ GISRecord::GISRecord(const string & raw_record){
     map_name = *itr++;
     date_created = *itr++;
     date_edited = *itr++;
-    //print();
 }
 
-double GISRecord::get_primary_lat_dec() const{
-    return primary_lat_dec;
+DMS GISRecord::get_primary_lat_dms() const{
+    return primary_lat_dms;
 }
 
-double GISRecord::get_primary_long_dec() const{
-    return primary_long_dec;
+DMS GISRecord::get_primary_long_dms() const{
+    return primary_long_dms;
 }
 
 string GISRecord::get_feature_name() const{
@@ -74,7 +75,7 @@ GISRecord GISRecord::retrieve_record(const string& criteria) {
     return static_cast<GISRecord>(nullptr);
 }
 
-string GISRecord::print(){
+string GISRecord::str(){
     bool empty_found = false;
     string result;
     alter_print_str("Feature Id: ", to_string(feature_id), result, empty_found);
@@ -84,12 +85,12 @@ string GISRecord::print(){
     alter_print_str("State Numeric: ", state_numeric, result, empty_found);
     alter_print_str("County Name: ", county_name, result, empty_found);
     alter_print_str("County Numeric: ", county_numeric, result, empty_found);
-    alter_print_str("Primary Lat DMS: ", primary_lat_dms, result, empty_found);
-    alter_print_str("Primary Long DMS: ", primary_long_dms, result, empty_found);
+    alter_print_str("Primary Lat DMS: ", primary_lat_dms.str(), result, empty_found);
+    alter_print_str("Primary Long DMS: ", primary_long_dms.str(), result, empty_found);
     alter_print_str("Primary Lat DEC: ", to_string(primary_lat_dec), result, empty_found);
     alter_print_str("Primary Long DEC: ", to_string(primary_long_dec), result, empty_found);
-    alter_print_str("Source Lat DMS: ", source_lat_dms, result, empty_found);
-    alter_print_str("Source Long DMS: ", source_long_dms, result, empty_found);
+    alter_print_str("Source Lat DMS: ", source_lat_dms.str(), result, empty_found);
+    alter_print_str("Source Long DMS: ", source_long_dms.str(), result, empty_found);
     alter_print_str("Source Lat DEC: ", to_string(source_lat_dec), result, empty_found);
     alter_print_str("Source Long DEC: ", to_string(source_long_dec), result, empty_found);
     alter_print_str("ELEV In M: ", to_string(elev_in_m), result, empty_found);

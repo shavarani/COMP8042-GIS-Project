@@ -41,7 +41,7 @@ class CoordinateIndex {
 
         void updateWorld(const World& wd);
 
-        void index_record(double latitude, double longitude, int record_offset);
+        void index_record(DMS latitude, DMS longitude, int record_offset);
 
         int get_index_size() const;
 

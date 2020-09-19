@@ -4,9 +4,11 @@
 
 #include "PRQuadTree.h"
 
+#include <utility>
+
 PRQuadTree::PRQuadTree(): bucket(){
-    topLeft = Point(0, 0);
-    botRight = Point(0, 0);
+    topLeft = Point();
+    botRight = Point();
     topLeftTree = nullptr;
     topRightTree = nullptr;
     botLeftTree = nullptr;
@@ -18,8 +20,8 @@ PRQuadTree::PRQuadTree(Point topL, Point botR): bucket() {
     topRightTree = nullptr;
     botLeftTree = nullptr;
     botRightTree = nullptr;
-    topLeft = topL;
-    botRight = botR;
+    topLeft = std::move(topL);
+    botRight = std::move(botR);
 }
 
 bool PRQuadTree::insert(Node *node) {
@@ -33,8 +35,7 @@ bool PRQuadTree::insert(Node *node) {
     } else if (bucket.size() < BUCKET_SIZE){
         bucket.insert(bucket.end(), *node);
         return true;
-    } else if (abs(topLeft.latitude - botRight.latitude) >= RESOLUTION
-               && abs(topLeft.longitude - botRight.longitude) >= RESOLUTION){
+    } else if (topLeft.latitude != botRight.latitude && topLeft.longitude != botRight.longitude){
         for (auto& n : bucket)
             expand_tree_for_node(&n)->insert(&n);
         bucket.clear();
@@ -57,9 +58,10 @@ Node* PRQuadTree::search(Point p) {
         }
         return nullptr;
     }
-    if ((topLeft.latitude + botRight.latitude) / 2 >= p.latitude) {
+    // '%' is averaging two DMS values
+    if ((topLeft.latitude % botRight.latitude) >= p.latitude) {
         // Indicates topLeftTree
-        if ((topLeft.longitude + botRight.longitude) / 2 >= p.longitude) {
+        if ((topLeft.longitude % botRight.longitude) >= p.longitude) {
             if (topLeftTree == nullptr)
                 return nullptr;
             return topLeftTree->search(p);
@@ -71,7 +73,8 @@ Node* PRQuadTree::search(Point p) {
     }
     else {
         // Indicates topRightTree
-        if ((topLeft.longitude + botRight.longitude) / 2 >= p.longitude) {
+        // '%' is averaging two DMS values
+        if ((topLeft.longitude % botRight.longitude) >= p.longitude) {
             if (topRightTree == nullptr)
                 return nullptr;
             return topRightTree->search(p);
@@ -109,36 +112,37 @@ std::string PRQuadTree::print(int level, const std::string& parent_prefix) const
 }
 
 PRQuadTree* PRQuadTree::expand_tree_for_node(Node* node) {
-    if ((topLeft.latitude + botRight.latitude) / 2.0 <= node->pos.latitude) {
-        if ((topLeft.longitude + botRight.longitude) / 2 >= node->pos.longitude) {
+    // '%' is averaging two DMS values
+    if ((topLeft.latitude % botRight.latitude) <= node->pos.latitude) {
+        if ((topLeft.longitude % botRight.longitude) >= node->pos.longitude) {
             // Indicates topLeftTree
             if (topLeftTree == nullptr)
                 topLeftTree = new PRQuadTree(
                         Point(topLeft.latitude, topLeft.longitude),
-                        Point((topLeft.latitude + botRight.latitude) / 2,(topLeft.longitude + botRight.longitude) / 2));
+                        Point((topLeft.latitude % botRight.latitude) ,(topLeft.longitude % botRight.longitude)));
             return topLeftTree;
         } else {
             // Indicates topRightTree
             if (botLeftTree == nullptr)
                 botLeftTree = new PRQuadTree(
-                        Point(topLeft.latitude, (topLeft.longitude + botRight.longitude) / 2),
-                        Point((topLeft.latitude + botRight.latitude) / 2, botRight.longitude));
+                        Point(topLeft.latitude, (topLeft.longitude % botRight.longitude)),
+                        Point((topLeft.latitude % botRight.latitude), botRight.longitude));
             return botLeftTree;
         }
     }
     else {
-        if ((topLeft.longitude + botRight.longitude) / 2 >= node->pos.longitude) {
+        if ((topLeft.longitude % botRight.longitude) >= node->pos.longitude) {
             // Indicates botLeftTree
             if (topRightTree == nullptr)
                 topRightTree = new PRQuadTree(
-                        Point((topLeft.latitude + botRight.latitude) / 2, topLeft.longitude),
-                        Point(botRight.latitude, (topLeft.longitude + botRight.longitude) / 2));
+                        Point((topLeft.latitude % botRight.latitude), topLeft.longitude),
+                        Point(botRight.latitude, (topLeft.longitude % botRight.longitude)));
             return topRightTree;
         } else {
             // Indicates botRightTree
             if (botRightTree == nullptr)
                 botRightTree = new PRQuadTree(
-                        Point((topLeft.latitude + botRight.latitude) / 2,(topLeft.longitude + botRight.longitude) / 2),
+                        Point((topLeft.latitude % botRight.latitude),(topLeft.longitude % botRight.longitude)),
                         Point(botRight.latitude, botRight.longitude));
             return botRightTree;
         }

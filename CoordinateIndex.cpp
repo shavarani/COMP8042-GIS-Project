@@ -4,14 +4,16 @@
 
 #include "CoordinateIndex.h"
 
+#include <utility>
+
 void CoordinateIndex::updateWorld(const World& wd) {
-    Point topL(wd.get_north_lat_dec(), wd.get_west_long_dec());
-    Point botR(wd.get_south_lat_dec(), wd.get_east_long_dec());
+    Point topL(wd.get_north_lat_dms(), wd.get_west_long_dms());
+    Point botR(wd.get_south_lat_dms(), wd.get_east_long_dms());
     index = PRQuadTree(topL,botR);
 }
 
-void CoordinateIndex::index_record(double latitude, double longitude, int record_offset){
-    Point pt(latitude, longitude);
+void CoordinateIndex::index_record(DMS latitude, DMS longitude, int record_offset){
+    Point pt(std::move(latitude), std::move(longitude));
     Node* result = index.search(pt);
     if (result != nullptr){
         result->insert(record_offset);

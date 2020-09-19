@@ -8,19 +8,15 @@
 #include <cmath>
 #include <string>
 #include <sstream>
+#include <utility>
 #include <vector>
+#include "DMS.cpp"
 
 struct Point {
-    double latitude;
-    double longitude;
-    Point(double _lat, double _long) {
-        latitude = _lat;
-        longitude = _long;
-    }
-    Point() {
-        latitude = 0;
-        longitude = 0;
-    }
+    DMS latitude;
+    DMS longitude;
+    Point(DMS _lat, DMS _long) : latitude(std::move(_lat)), longitude(std::move(_long)) {}
+    Point() : latitude(), longitude(){}
 };
 
 struct Node {
@@ -29,7 +25,7 @@ struct Node {
     bool allocated = false;
 
     explicit Node(Point _pos) {
-        pos = _pos;
+        pos = std::move(_pos);
         allocated = true;
     }
 
@@ -42,7 +38,7 @@ struct Node {
     std::string print() const {
         std::ostringstream os;
         os.precision(5);
-        os << "Point["<< pos.latitude << "," << pos.longitude << "] : |";
+        os << "Point["<< pos.latitude.str() << "," << pos.longitude.str() << "] : |";
         for(auto& record_offset: record_offsets)
             os << record_offset << "|";
         os << std::endl;
@@ -54,7 +50,6 @@ class PRQuadTree {
     private:
     // Hold details of the boundary of this node
         // The minimum resolution is one second of arc.
-        constexpr static double RESOLUTION = 1 / 3600.0;
         const static int BUCKET_SIZE = 4;
         Point topLeft;
         Point botRight;

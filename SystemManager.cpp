@@ -44,7 +44,7 @@ string SystemManager::process_import_command(const string & gis_record_file_name
             GISRecord record(gis_record);
             if(world.is_in_world_boundaries(record)){
                 n_index.index_record(record.get_feature_name(), record.get_state_alpha(), last_db_record_offset);
-                c_index.index_record(record.get_primary_lat_dec(), record.get_primary_long_dec(), last_db_record_offset);
+                c_index.index_record(record.get_primary_lat_dms(), record.get_primary_long_dms(), last_db_record_offset);
                 record_to_db(gis_record);
             }
         }

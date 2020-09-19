@@ -8,6 +8,7 @@
 #include <string>
 #include <limits>
 #include <vector>
+#include "DMS.cpp"
 
 using namespace std;
 
@@ -49,12 +50,12 @@ class GISRecord {
         std::string state_numeric;
         std::string county_name;
         std::string county_numeric;
-        std::string primary_lat_dms;
-        std::string primary_long_dms;
+        DMS primary_lat_dms;
+        DMS primary_long_dms;
         double primary_lat_dec;
         double primary_long_dec;
-        std::string source_lat_dms;
-        std::string source_long_dms;
+        DMS source_lat_dms;
+        DMS source_long_dms;
         double source_lat_dec;
         double source_long_dec;
         int elev_in_m{};
@@ -71,12 +72,12 @@ class GISRecord {
         explicit GISRecord(const std::string & raw_record);
         ~GISRecord() = default;  // This is the destructor declaration
 
-        double get_primary_lat_dec() const;
-        double get_primary_long_dec() const;
+        DMS get_primary_lat_dms() const;
+        DMS get_primary_long_dms() const;
         std::string get_feature_name() const;
         std::string get_state_alpha() const;
         GISRecord retrieve_record(const std::string& criteria);
-        std::string print();
+        std::string str();
 };
 
 

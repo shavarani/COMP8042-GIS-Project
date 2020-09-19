@@ -13,14 +13,10 @@ using namespace std;
 
 class World {
     private:
-        string west_long_dms;
-        string east_long_dms;
-        string south_lat_dms;
-        string north_lat_dms;
-        double west_long_dec;
-        double east_long_dec;
-        double south_lat_dec;
-        double north_lat_dec;
+        DMS west_long_dms;
+        DMS east_long_dms;
+        DMS south_lat_dms;
+        DMS north_lat_dms;
     public:
         explicit World();
         World( const World & rhs ) = default; // Copy Constructor
@@ -30,10 +26,10 @@ class World {
         World(const string& west_long, const string& east_long, const string& south_lat, const string& north_lat);
         string print();
         bool is_in_world_boundaries(GISRecord & record) const;
-        double get_west_long_dec() const;
-        double get_east_long_dec() const;
-        double get_south_lat_dec() const;
-        double get_north_lat_dec() const;
+        DMS get_west_long_dms() const;
+        DMS get_east_long_dms() const;
+        DMS get_south_lat_dms() const;
+        DMS get_north_lat_dms() const;
 };
 
 
