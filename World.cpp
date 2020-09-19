@@ -48,7 +48,7 @@ DMS World::get_north_lat_dms() const{
     return north_lat_dms;
 }
 
-string World::print() {
+string World::str() {
     string log_tabs = "\t\t\t\t\t\t";
     std::ostringstream os;
     os  << "------------------------------------------------------------------------------------------" << endl

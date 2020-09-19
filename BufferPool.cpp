@@ -3,3 +3,8 @@
 //
 
 #include "BufferPool.h"
+
+
+std::string BufferPool::str(){
+    return "";
+}

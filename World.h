@@ -24,7 +24,7 @@ class World {
         World & operator= ( const World & rhs ) = default; // Copy Constructor
         World & operator= ( World && rhs ) = default; // Move Constructor
         World(const string& west_long, const string& east_long, const string& south_lat, const string& north_lat);
-        string print();
+        string str();
         bool is_in_world_boundaries(GISRecord & record) const;
         DMS get_west_long_dms() const;
         DMS get_east_long_dms() const;

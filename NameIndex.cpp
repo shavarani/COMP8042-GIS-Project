@@ -41,3 +41,7 @@ int NameIndex::get_average_name_length() const {
     else
         return 0;
 }
+
+std::string NameIndex::str(){
+    return "";
+}

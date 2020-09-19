@@ -69,7 +69,7 @@ class PRQuadTree {
         bool insert(Node*);
         Node* search(Point);
         bool inBoundary(Point);
-        std::string print(int level = 0, const std::string& parent_prefix = "") const;
+        std::string str(int level = 0, const std::string& parent_prefix = "") const;
 };
 
 

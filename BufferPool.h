@@ -5,6 +5,7 @@
 #ifndef FINAL_PROJECT_BUFFERPOOL_H
 #define FINAL_PROJECT_BUFFERPOOL_H
 
+#include <string>
 
 class BufferPool {
     /*
@@ -23,6 +24,8 @@ class BufferPool {
         BufferPool & operator= ( const BufferPool & rhs ) = default; // Copy Assignment
         BufferPool & operator= ( BufferPool && rhs ) = default; // Move Assignment
         ~BufferPool() = default;
+
+        std::string str();
 };
 
 

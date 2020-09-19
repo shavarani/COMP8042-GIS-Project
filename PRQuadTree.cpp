@@ -92,7 +92,7 @@ bool PRQuadTree::inBoundary(Point p) {
             p.longitude >= topLeft.longitude && p.longitude <= botRight.longitude);
 }
 
-std::string PRQuadTree::print(int level, const std::string& parent_prefix) const {
+std::string PRQuadTree::str(int level, const std::string& parent_prefix) const {
     std::ostringstream os;
     for (auto& n : bucket) {
         for (int i = 0; i < level-1; ++i) {
@@ -101,13 +101,13 @@ std::string PRQuadTree::print(int level, const std::string& parent_prefix) const
         os << "|" << parent_prefix << "|" << n.print();
     }
     if (topLeftTree != nullptr)
-        os << topLeftTree -> print(level + 1, parent_prefix + "<NW>");
+        os << topLeftTree -> str(level + 1, parent_prefix + "<NW>");
     if (topRightTree != nullptr)
-        os << topRightTree -> print(level + 1, parent_prefix + "<NE>");
+        os << topRightTree -> str(level + 1, parent_prefix + "<NE>");
     if (botLeftTree != nullptr)
-        os << botLeftTree -> print(level + 1, parent_prefix + "<SW>");
+        os << botLeftTree -> str(level + 1, parent_prefix + "<SW>");
     if (botRightTree != nullptr)
-        os << botRightTree -> print(level + 1, parent_prefix + "<SE>");
+        os << botRightTree -> str(level + 1, parent_prefix + "<SE>");
     return os.str();
 }
 

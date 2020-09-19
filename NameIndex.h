@@ -42,6 +42,7 @@ public:
     int get_index_size() const;
     int get_longest_probe_sequence() const;
     int get_average_name_length() const;
+    std::string str();
 };
 
 

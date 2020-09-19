@@ -23,7 +23,7 @@ string SystemManager::process_world_command(const string& west_long, const strin
     //			- world<tab><westLong><tab><eastLong><tab><southLat><tab><northLat>
     world = World(west_long, east_long, south_lat, north_lat);
     c_index.updateWorld(world);
-    return world.print();
+    return world.str();
 }
 
 string SystemManager::process_import_command(const string & gis_record_file_name){

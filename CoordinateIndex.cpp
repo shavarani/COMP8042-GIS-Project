@@ -31,6 +31,6 @@ int CoordinateIndex::get_index_size() const {
     return index_size;
 }
 
-std::string CoordinateIndex::print() const {
-    return index.print();
+std::string CoordinateIndex::str() const {
+    return index.str();
 }
