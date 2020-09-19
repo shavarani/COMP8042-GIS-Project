@@ -25,6 +25,7 @@ class NameIndex {
     private:
         int table_size = 1024;
         double load_factor = 0.0;
+        // TODO implement a hashmap here!
         std::map<unsigned long, std::set<int>> index;
         int index_size = 0.0;
         int longest_probe_sequence = 0.0;
@@ -38,7 +39,7 @@ public:
     NameIndex & operator= ( const NameIndex & rhs ) = default; // Copy Assignment
     NameIndex & operator= ( NameIndex && rhs ) = default; // Move Assignment
 
-    void index_record(std::string feature_name, std::string state_alpha, int record_offset);
+    void index_record(const std::string& feature_name, const std::string& state_alpha, int record_offset);
     int get_index_size() const;
     int get_longest_probe_sequence() const;
     int get_average_name_length() const;
