@@ -35,13 +35,12 @@ struct Node {
         record_offsets.insert(record_offsets.end(), _record_offset);
     }
 
-    std::string print() const {
+    std::string str() const {
         std::ostringstream os;
         os.precision(5);
-        os << "Point["<< pos.latitude.str() << "," << pos.longitude.str() << "] : |";
+        os << "[("<< pos.latitude.total_seconds() << "," << pos.longitude.total_seconds() << "), ";
         for(auto& record_offset: record_offsets)
-            os << record_offset << "|";
-        os << std::endl;
+            os << record_offset << "]";
         return os.str();
     }
 };
@@ -61,7 +60,7 @@ class PRQuadTree {
         PRQuadTree *botLeftTree;
         PRQuadTree *botRightTree;
         PRQuadTree* expand_tree_for_node(Node*);
-        bool is_leaf_node();
+        bool is_leaf_node() const;
 
     public:
         PRQuadTree();

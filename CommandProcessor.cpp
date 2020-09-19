@@ -101,7 +101,7 @@ void CommandProcessor::process_command(const vector<string>& arguments){
             logger.log_time("End time:");
             break;
         case DEBUG:
-            systemManager.process_debug_command(*itr++);
+            logger.log_printable_log(systemManager.process_debug_command(*itr++));
             if (itr != arguments.end())
                 throw std::invalid_argument("Debug command only receives 1 argument");
             break;

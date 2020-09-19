@@ -121,7 +121,7 @@ string SystemManager::process_debug_command(const string & component_name){
     if (component_name == "world") {
         cout << "debugging " + component_name << endl;
     } else if (component_name == "quad") {
-        cout << "debugging " + component_name << endl;
+        return c_index.str();
     } else if (component_name == "hash") {
         cout << "debugging " + component_name << endl;
     } else if (component_name == "pool") {

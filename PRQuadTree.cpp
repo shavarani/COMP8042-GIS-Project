@@ -94,20 +94,33 @@ bool PRQuadTree::inBoundary(Point p) {
 
 std::string PRQuadTree::str(int level, const std::string& parent_prefix) const {
     std::ostringstream os;
-    for (auto& n : bucket) {
-        for (int i = 0; i < level-1; ++i) {
-            os << "-";
-        }
-        os << "|" << parent_prefix << "|" << n.print();
-    }
     if (topLeftTree != nullptr)
-        os << topLeftTree -> str(level + 1, parent_prefix + "<NW>");
+        os << topLeftTree -> str(level + 1, parent_prefix + "   ");
+    else if (!is_leaf_node())
+        os << parent_prefix << "   *" << endl;
+
     if (topRightTree != nullptr)
-        os << topRightTree -> str(level + 1, parent_prefix + "<NE>");
+        os << topRightTree -> str(level + 1, parent_prefix+ "   ");
+    else if (!is_leaf_node())
+        os << parent_prefix << "   *" << endl;
+
+    if (bucket.empty())
+        os << parent_prefix << "@" << std::endl;
+    else {
+        os << parent_prefix ;
+        for (auto& n : bucket)
+            os << n.str() << " ";
+        os << endl;
+    }
     if (botLeftTree != nullptr)
-        os << botLeftTree -> str(level + 1, parent_prefix + "<SW>");
+        os << botLeftTree -> str(level + 1, parent_prefix+ "   ");
+    else if (!is_leaf_node())
+        os << parent_prefix << "   *" << endl;
+
     if (botRightTree != nullptr)
-        os << botRightTree -> str(level + 1, parent_prefix + "<SE>");
+        os << botRightTree -> str(level + 1, parent_prefix+ "   ");
+    else if (!is_leaf_node())
+        os << parent_prefix << "   *" << endl;
     return os.str();
 }
 
@@ -149,6 +162,6 @@ PRQuadTree* PRQuadTree::expand_tree_for_node(Node* node) {
     }
 }
 
-bool PRQuadTree::is_leaf_node() {
+bool PRQuadTree::is_leaf_node() const{
     return topLeftTree == nullptr && topRightTree == nullptr && botLeftTree == nullptr && botRightTree == nullptr;
 }
