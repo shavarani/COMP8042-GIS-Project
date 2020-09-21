@@ -30,14 +30,18 @@ void FileManager::create_file(const char * filename){
 }
 
 FileManager::~FileManager(){
-    if(file_is_opened){
-        file.close();
-        file_is_opened = false;
-    }
+    close_file();
 }
 
 void FileManager::write_to_file(const string & str) {
     if(!file_is_opened)
         throw std::invalid_argument("You need to initialize the file manager first!");
     file << str;
+}
+
+void FileManager::close_file(){
+    if(file_is_opened){
+        file.close();
+        file_is_opened = false;
+    }
 }

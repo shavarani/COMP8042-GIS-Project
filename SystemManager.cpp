@@ -8,12 +8,12 @@ void SystemManager::record_to_db(const string & raw_record){
     std::ostringstream os;
     os << raw_record << endl;
     string res = os.str();
-    db_file.write_to_file(res);
+    pool.get_db_file()->write_to_file(res);
     last_db_record_offset += 1;
 }
 
-SystemManager::SystemManager(const char* db_file_adr): db_file(), world(), n_index(), c_index(), last_db_record_offset(0){
-    db_file.create_file(db_file_adr);
+SystemManager::SystemManager(const char* db_file_adr): pool(), world(), n_index(), c_index(), last_db_record_offset(0){
+    pool.create_db_file(db_file_adr);
 }
 
 string SystemManager::process_world_command(const string& west_long, const string& east_long,

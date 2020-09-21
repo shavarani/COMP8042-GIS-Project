@@ -8,10 +8,10 @@
 #include <string>
 #include <iostream>
 #include <sstream>
-#include "FileManager.h"
 #include "World.h"
 #include "NameIndex.h"
 #include "CoordinateIndex.h"
+#include "BufferPool.h"
 
 
 class SystemManager {
@@ -19,12 +19,12 @@ class SystemManager {
         // 		1. validates the command line arguments
         // 		2. manages the initialization of the various system components.
     private:
-        FileManager db_file;
         int last_db_record_offset;
         World world;
-        NameIndex n_index{};
-        CoordinateIndex c_index{};
+        NameIndex n_index;
+        CoordinateIndex c_index;
         void record_to_db(const string & raw_record);
+        BufferPool pool;
 
     public:
         explicit SystemManager(const char* db_file_adr = nullptr);

@@ -20,6 +20,7 @@ class FileManager {
         static vector<string> read_file(const string& filename);
         void create_file(const char * filename);
         void write_to_file(const string & str);
+        void close_file();
 };
 
 
