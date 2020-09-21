@@ -22,6 +22,11 @@ struct NameIndexElement {
         void insert(int record_offset) {
             record_offsets.insert(record_offset);
         }
+
+        std::set<int> get_record_offsets(){
+            return record_offsets;
+        }
+
         std::string str(){
             std::ostringstream os;
             os << "[" << key << ", [";
@@ -69,6 +74,7 @@ public:
     NameIndex & operator= ( NameIndex && rhs ) = default; // Move Assignment
 
     void index_record(const std::string& feature_name, const std::string& state_alpha, int record_offset);
+    std::set<int> lookup_record(const std::string& feature_name, const std::string& state_alpha);
     int get_index_size() const;
     int get_longest_probe_sequence() const;
     int get_average_name_length() const;

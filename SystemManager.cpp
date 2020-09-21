@@ -69,8 +69,12 @@ string SystemManager::process_what_is_command(const string & feature_name, const
     //				- the county name
     //				- the primary latitude
     //				- the primary longitude
-    cout << "args: " << feature_name << ", " << state_abbreviation << endl;
-    return "";
+    std::set<int> possible_offsets = n_index.lookup_record(feature_name, state_abbreviation);
+    vector<GISRecord> res = pool.retrieve_records(possible_offsets);
+    std::ostringstream os;
+    for (auto& elem :res)
+        os << elem.str() << endl;
+    return os.str();
 }
 
 

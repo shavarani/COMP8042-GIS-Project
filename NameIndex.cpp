@@ -30,6 +30,14 @@ void NameIndex::index_record(const std::string& feature_name, const std::string&
     index_size++;
 }
 
+std::set<int> NameIndex::lookup_record(const std::string& feature_name, const std::string& state_alpha){
+    unsigned long key = elf_hash(feature_name, state_alpha);
+    if(!index.count(key))
+        return std::set<int>{};
+    else
+        return index[key].get_record_offsets();
+}
+
 int NameIndex::get_index_size() const {
     return index_size;
 }
