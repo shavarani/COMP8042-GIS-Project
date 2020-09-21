@@ -21,6 +21,10 @@ vector<GISRecord> BufferPool::retrieve_records(const std::set<int>& record_offse
     vector<GISRecord> result;
     if(record_offsets.empty())
         return result;
-    db_file.retrieve_records(record_offsets);
+    for (auto& elem: db_file.retrieve_records(record_offsets)) {
+        GISRecord e(elem.first);
+        e.set_file_offset(elem.second);
+        result.insert(result.end(), e);
+    }
     return result;
 }

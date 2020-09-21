@@ -33,17 +33,10 @@ class GISRecord {
         /*
         Attributes:
             1. GIS record file will contain two or more distinct records that have the same geographic coordinates.
-            2. coordinates are expressed in the usual DMS system (they cannot be primary/unique key).
-            3. name index : records will be indexed by the Feature Name and State (abbreviation) fields.
-            4. coordinate index: indexed by geographic coordinate.
-
         */
     private:
-        //Each index should have the ability to write a nicely-formatted display of itself to an output stream.
-        // ???
-        std::string name_index;
-        std::string coordinate_index;
-        int feature_id{};
+        int file_offset;
+        int feature_id;
         std::string feature_name;
         std::string feature_class;
         std::string state_alpha;
@@ -58,8 +51,8 @@ class GISRecord {
         DMS source_long_dms;
         double source_lat_dec;
         double source_long_dec;
-        int elev_in_m{};
-        int elev_in_ft{};
+        int elev_in_m;
+        int elev_in_ft;
         std::string map_name;
         std::string date_created;
         std::string date_edited;
@@ -76,8 +69,10 @@ class GISRecord {
         DMS get_primary_long_dms() const;
         std::string get_feature_name() const;
         std::string get_state_alpha() const;
-        GISRecord retrieve_record(const std::string& criteria);
         std::string str();
+        void set_file_offset(int offset);
+        int get_file_offset() const;
+        std::string get_county_name();
 };
 
 

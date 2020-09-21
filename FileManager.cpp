@@ -72,8 +72,8 @@ void FileManager::open_file_reader(){
     }
 }
 
-vector<string> FileManager::retrieve_records(const std::set<int>& record_offsets){
-    vector<string> res;
+vector<std::pair <std::string,int>> FileManager::retrieve_records(const std::set<int>& record_offsets){
+    vector<std::pair <std::string,int>> res;
     if (record_offsets.empty())
         return res;
     close_file_writer();
@@ -85,7 +85,7 @@ vector<string> FileManager::retrieve_records(const std::set<int>& record_offsets
         while(!file_reader.eof()) {
             getline(file_reader,line);
             if (record_offsets.count(line_counter))
-                res.insert(res.end(), line);
+                res.insert(res.end(), std::make_pair(line, line_counter));
             line_counter++;
             if (record_offsets.size() == res.size())
                 break;

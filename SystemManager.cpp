@@ -74,7 +74,9 @@ string SystemManager::process_what_is_command(const string & feature_name, const
     vector<GISRecord> res = pool.retrieve_records(possible_offsets);
     std::ostringstream os;
     for (auto& elem :res)
-        os << elem.str() << endl;
+        os  << "\t" << elem.get_file_offset() << ":  "<< elem.get_county_name() << "  ("
+            << elem.get_primary_lat_dms().str() << ", "
+            << elem.get_primary_long_dms().str() << ")" << endl;
     return os.str();
 }
 

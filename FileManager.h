@@ -28,7 +28,7 @@ class FileManager {
         static vector<string> read_file(const string& filename);
         void create_file_to_write(const char * filename);
         void write_to_file(const string & str);
-        vector<string> retrieve_records(const std::set<int>& record_offsets);
+        vector<std::pair <std::string,int>> retrieve_records(const std::set<int>& record_offsets);
 };
 
 

@@ -64,7 +64,23 @@ struct DMS {
             return direction;
         }
 
-        bool operator==(const DMS& a) const{
+        std::string get_direction_str() const {
+            switch (direction) {
+                case NORTH:
+                    return "North";
+                case SOUTH:
+                    return "South";
+                case WEST:
+                    return "West";
+                case EAST:
+                    return "East";
+                default:
+                    return "NullIsland";
+            }
+        }
+
+
+    bool operator==(const DMS& a) const{
             if(a.direction==direction && a.degree== degree && a.minute== minute && a.second== second)
                 return true;
             else
@@ -158,7 +174,8 @@ struct DMS {
 
         string str() const{
             std::ostringstream os;
-            os << (is_negative()?"-":"") <<  degree << "d" << minute << "m" << second << "s";
+            //os << (is_negative()?"-":"") <<  degree << "d" << minute << "m" << second << "s";
+            os <<  degree << "d " << minute << "m " << second << "s " << get_direction_str();
             return os.str();
         }
 };

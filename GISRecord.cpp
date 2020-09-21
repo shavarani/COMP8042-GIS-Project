@@ -71,8 +71,16 @@ string GISRecord::get_state_alpha() const{
     return state_alpha;
 }
 
-GISRecord GISRecord::retrieve_record(const string& criteria) {
-    return static_cast<GISRecord>(nullptr);
+void GISRecord::set_file_offset(int offset){
+    file_offset = offset;
+}
+
+int GISRecord::get_file_offset() const{
+    return file_offset;
+}
+
+std::string GISRecord::get_county_name(){
+    return county_name;
 }
 
 string GISRecord::str(){
