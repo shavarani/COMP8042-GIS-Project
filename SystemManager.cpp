@@ -63,18 +63,19 @@ string SystemManager::process_what_is_command(const string & feature_name, const
     //		7. what is command
     //			- what is<tab><feature name><tab><state abbreviation>
     //			- find every GIS record in the database file that matches the given <feature name> and <state abbreviation>
-    //			- for each record log only
-    //				- the offset (at which the record was found)
-    //				- the county name
-    //				- the primary latitude
-    //				- the primary longitude
     std::set<int> possible_offsets = n_index.lookup_record(feature_name, state_abbreviation);
     if (possible_offsets.empty())
         return "No records match \""+feature_name+"\" and \""+state_abbreviation+"\"\n";
     vector<GISRecord> res = pool.retrieve_records(possible_offsets);
     std::ostringstream os;
+    //			- for each record log only
+    //				- the offset (at which the record was found)
+    //				- the county name
+    //				- the primary latitude
+    //				- the primary longitude
     for (auto& elem :res)
-        os  << "\t" << elem.get_file_offset() << ":  "<< elem.get_county_name() << "  ("
+        os  << "\t" << elem.get_file_offset() << ":  "
+            << elem.get_county_name() << "  ("
             << elem.get_primary_lat_dms().str() << ", "
             << elem.get_primary_long_dms().str() << ")" << endl;
     return os.str();
