@@ -69,6 +69,7 @@ void FileManager::open_file_reader(){
         throw std::invalid_argument("You need to initialize the file manager first!");
     if(!file_reader_is_opened){
         file_reader.open(f_name);
+        file_reader_is_opened = true;
     }
 }
 
