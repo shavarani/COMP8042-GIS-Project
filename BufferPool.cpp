@@ -10,13 +10,17 @@ std::string BufferPool::str(){
 }
 
 void BufferPool::create_db_file(const char* db_file_adr) {
-    db_file.create_file(db_file_adr);
+    db_file.create_file_to_write(db_file_adr);
 }
 
 FileManager* BufferPool::get_db_file(){
     return &db_file;
 }
 
-BufferPool::~BufferPool() {
-    db_file.close_file();
+vector<GISRecord> BufferPool::retrieve_records(const std::set<int>& record_offsets){
+    vector<GISRecord> result;
+    if(record_offsets.empty())
+        return result;
+    db_file.retrieve_records(record_offsets);
+    return result;
 }

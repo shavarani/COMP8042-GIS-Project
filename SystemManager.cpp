@@ -51,7 +51,6 @@ string SystemManager::process_import_command(const string & gis_record_file_name
         first_record_seen = true;
     }
     std::ostringstream os;
-    os  << endl;
     os  << "Imported Features by name: " << n_index.get_index_size() - n_index_size_before_import << endl
         << "Longest probe sequence:    " << n_index.get_longest_probe_sequence() << endl
         << "Imported Locations:        " << c_index.get_index_size() - c_index_size_before_import << endl
@@ -70,6 +69,8 @@ string SystemManager::process_what_is_command(const string & feature_name, const
     //				- the primary latitude
     //				- the primary longitude
     std::set<int> possible_offsets = n_index.lookup_record(feature_name, state_abbreviation);
+    if (possible_offsets.empty())
+        return "No records match \""+feature_name+"\" and \""+state_abbreviation+"\"\n";
     vector<GISRecord> res = pool.retrieve_records(possible_offsets);
     std::ostringstream os;
     for (auto& elem :res)

@@ -5,7 +5,7 @@
 #include "Logger.h"
 
 Logger::Logger(const char* log_file_adr): log_file(){
-    log_file.create_file(log_file_adr);
+    log_file.create_file_to_write(log_file_adr);
     std::ostringstream os;
     os << "GIS Program log:" << endl;
     string res = os.str();
@@ -17,7 +17,7 @@ void Logger::log_command(const string & command){
     if (command.empty() || command.find(";") == 0 || command.substr(0, 5) == "world"){
         os << command << endl;
     } else{
-        os << "Command " << ++command_id << ": "<<command << endl;
+        os << "Command " << ++command_id << ": "<<command << endl << endl;
     }
     string res = os.str();
     log_file.write_to_file(res);
@@ -34,7 +34,7 @@ void Logger::log_file_names(const char* db_file_name, const char* script_file_na
 
 void Logger::log_printable_log(const string& log){
     std::ostringstream os;
-    os << log << endl;
+    os << log << "------------------------------------------------------------------------------------------" << endl;
     string res = os.str();
     log_file.write_to_file(res);
 }

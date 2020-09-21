@@ -7,6 +7,7 @@
 
 #include <string>
 #include <vector>
+#include <set>
 #include "GISRecord.h"
 #include "FileManager.h"
 
@@ -29,11 +30,12 @@ class BufferPool {
         BufferPool( BufferPool && rhs ) = delete; // Move Constructor
         BufferPool & operator= ( const BufferPool & rhs ) = delete; // Copy Assignment
         BufferPool & operator= ( BufferPool && rhs ) = delete; // Move Assignment
-        ~BufferPool();
+        ~BufferPool() = default;
 
         std::string str();
         void create_db_file(const char* db_file_adr);
         FileManager* get_db_file();
+        vector<GISRecord> retrieve_records(const std::set<int>& record_offsets);
 };
 
 

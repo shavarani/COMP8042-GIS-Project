@@ -65,11 +65,14 @@ void CommandProcessor::process_command(const vector<string>& arguments){
             if (itr != arguments.end())
                 throw std::invalid_argument("Import command only receives 1 argument");
             break;
-        case WHAT_IS:
-            systemManager.process_what_is_command(*itr++, *itr++);
+        case WHAT_IS: {
+            string feature_name = *itr++;
+            string state_abbreviation = *itr++;
+            logger.log_printable_log(systemManager.process_what_is_command(feature_name, state_abbreviation));
             if (itr != arguments.end())
                 throw std::invalid_argument("What_is command only receives 2 arguments");
             break;
+        }
         case WHAT_IS_AT:
             systemManager.process_what_is_at_command(*itr++, *itr++);
             if (itr != arguments.end())

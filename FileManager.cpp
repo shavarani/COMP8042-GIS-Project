@@ -19,29 +19,78 @@ vector<string> FileManager::read_file(const string& filename){
     return data;
 }
 
-void FileManager::create_file(const char * filename){
+void FileManager::create_file_to_write(const char * filename){
     if (remove(filename) == 0){
         cout << "Previously created file <" << filename <<"> successfully re-created ..." << endl;
     }
-    if(file_is_opened)
-        file.close();
-    file.open(filename);
-    file_is_opened = true;
+    f_name = filename;
+    open_file_writer();
 }
 
 FileManager::~FileManager(){
-    close_file();
+    close_file_writer();
 }
 
 void FileManager::write_to_file(const string & str) {
-    if(!file_is_opened)
-        throw std::invalid_argument("You need to initialize the file manager first!");
-    file << str;
+    open_file_writer(true);
+    file_writer << str;
 }
 
-void FileManager::close_file(){
-    if(file_is_opened){
-        file.close();
-        file_is_opened = false;
+void FileManager::open_file_writer(bool append){
+    if(!append && file_writer_is_opened)
+        file_writer.close();
+    if(!file_writer_is_opened){
+        if (f_name == nullptr)
+            throw std::invalid_argument("You need to initialize the file manager first!");
+        if (append)
+            file_writer.open(f_name, std::ios_base::app);
+        else
+            file_writer.open(f_name);
+        file_writer_is_opened = true;
     }
+}
+
+void FileManager::close_file_writer(){
+    if(file_writer_is_opened){
+        file_writer.close();
+        file_writer_is_opened = false;
+    }
+}
+
+void FileManager::close_file_reader(){
+    if(file_reader_is_opened){
+        file_reader.close();
+        file_reader_is_opened = false;
+    }
+}
+
+void FileManager::open_file_reader(){
+    if (f_name == nullptr)
+        throw std::invalid_argument("You need to initialize the file manager first!");
+    if(!file_reader_is_opened){
+        file_reader.open(f_name);
+    }
+}
+
+vector<string> FileManager::retrieve_records(const std::set<int>& record_offsets){
+    vector<string> res;
+    if (record_offsets.empty())
+        return res;
+    close_file_writer();
+    open_file_reader();
+    int line_counter = 0;
+    if(file_reader.is_open()) {
+        std::string line;
+        //file_reader.seekg(0, ios::end);
+        while(!file_reader.eof()) {
+            getline(file_reader,line);
+            if (record_offsets.count(line_counter))
+                res.insert(res.end(), line);
+            line_counter++;
+            if (record_offsets.size() == res.size())
+                break;
+        }
+    }
+    close_file_reader();
+    return res;
 }
