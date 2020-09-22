@@ -1,5 +1,5 @@
 //
-// Created by hassan on 2020-09-17.
+// Created by Hassan S. Shavarani
 //
 
 #ifndef FINAL_PROJECT_BUFFERPOOL_H
@@ -8,6 +8,10 @@
 #include <string>
 #include <vector>
 #include <set>
+#include <list>
+#include <unordered_map>
+#include <sstream>
+#include <map>
 #include "GISRecord.h"
 #include "FileManager.h"
 
@@ -22,10 +26,16 @@ class BufferPool {
 
     // You must be able to display the contents of the buffer pool, listed from MRU to LRU entry, in a readable manner.
     private:
-        vector<GISRecord> pool;
+        // store keys of cache
+        std::list<int> dq;
+        std::map<int, GISRecord> pool;
+        // store references of key in cache
+        std::unordered_map<int, std::list<int>::iterator> ma;
+        int csize; // maximum capacity of cache
+        void refer(int offset);
         FileManager db_file;
     public:
-        BufferPool(): db_file(){}
+        explicit BufferPool(int cache_size): db_file(), csize(cache_size){}
         BufferPool( const BufferPool & rhs ) = delete; // Copy Constructor
         BufferPool( BufferPool && rhs ) = delete; // Move Constructor
         BufferPool & operator= ( const BufferPool & rhs ) = delete; // Copy Assignment
@@ -36,6 +46,7 @@ class BufferPool {
         void create_db_file(const char* db_file_adr);
         FileManager* get_db_file();
         vector<GISRecord> retrieve_records(const std::set<int>& record_offsets);
+        bool exists(int offset);
 };
 
 

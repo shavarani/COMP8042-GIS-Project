@@ -56,6 +56,7 @@ class GISRecord {
         std::string map_name;
         std::string date_created;
         std::string date_edited;
+        std::string raw_record_str;
 
     public:
         GISRecord( const GISRecord & rhs ) = default; // Copy Constructor
@@ -78,6 +79,7 @@ class GISRecord {
         int get_elevation_ft() const;
         std::string get_map_name();
         std::string get_date_created();
+        std::string get_raw_record();
 };
 
 

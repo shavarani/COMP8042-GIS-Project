@@ -53,6 +53,7 @@ GISRecord::GISRecord(const string & raw_record){
     map_name = *itr++;
     date_created = *itr++;
     date_edited = *itr++;
+    raw_record_str = raw_record;
 }
 
 DMS GISRecord::get_primary_lat_dms() const{
@@ -101,6 +102,10 @@ std::string GISRecord::get_map_name(){
 
 std::string GISRecord::get_date_created(){
     return date_created;
+}
+
+std::string GISRecord::get_raw_record(){
+    return raw_record_str;
 }
 
 string GISRecord::str(){

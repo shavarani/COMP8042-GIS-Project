@@ -12,7 +12,7 @@ void SystemManager::record_to_db(const string & raw_record){
     last_db_record_offset += 1;
 }
 
-SystemManager::SystemManager(const char* db_file_adr): pool(), world(), n_index(), c_index(), last_db_record_offset(0){
+SystemManager::SystemManager(const char* db_file_adr): pool(15), world(), n_index(), c_index(), last_db_record_offset(0){
     pool.create_db_file(db_file_adr);
 }
 
@@ -157,7 +157,7 @@ string SystemManager::process_what_is_in_command(const string & geographic_coord
                << "  Latitude     : " << elem.get_primary_lat_dms().str() << endl
                << "  Elev in ft   : " << elem.get_elevation_ft() << endl
                << "  USGS Quad    : " << elem.get_map_name() << endl
-               << "  Date created : " << elem.get_date_created() << endl;
+               << "  Date created : " << elem.get_date_created() << endl << endl;
         }
     } else {
         for (auto &elem :res) {
@@ -189,7 +189,7 @@ string SystemManager::process_debug_command(const string & component_name){
     } else if (component_name == "hash") {
         return n_index.str();
     } else if (component_name == "pool") {
-        cout << "debugging " + component_name << endl;
+        return pool.str();
     } else {
         throw std::invalid_argument("Invalid component_name: "+component_name);
     }
