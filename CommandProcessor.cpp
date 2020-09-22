@@ -73,11 +73,14 @@ void CommandProcessor::process_command(const vector<string>& arguments){
                 throw std::invalid_argument("What_is command only receives 2 arguments");
             break;
         }
-        case WHAT_IS_AT:
-            systemManager.process_what_is_at_command(*itr++, *itr++);
+        case WHAT_IS_AT: {
+            string geographic_coordinate_lat = *itr++;
+            string geographic_coordinate_long = *itr++;
+            logger.log_printable_log(systemManager.process_what_is_at_command(geographic_coordinate_lat, geographic_coordinate_long));
             if (itr != arguments.end())
                 throw std::invalid_argument("What_is_at command only receives 2 arguments");
             break;
+        }
         case WHAT_IS_IN: {
             string filter;
             bool long_report = false;

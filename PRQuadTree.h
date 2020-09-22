@@ -10,6 +10,7 @@
 #include <sstream>
 #include <utility>
 #include <vector>
+#include <set>
 #include "DMS.cpp"
 
 struct Point {
@@ -21,7 +22,7 @@ struct Point {
 
 struct Node {
     Point pos;
-    std::vector<int> record_offsets;
+    std::set<int> record_offsets;
     bool allocated = false;
 
     explicit Node(Point _pos) {
@@ -56,10 +57,10 @@ class PRQuadTree {
         // Contains details of node
         std::vector<Node> bucket;
         // Children of this tree
-        PRQuadTree *topLeftTree;
-        PRQuadTree *topRightTree;
         PRQuadTree *botLeftTree;
+        PRQuadTree *topLeftTree;
         PRQuadTree *botRightTree;
+        PRQuadTree *topRightTree;
         PRQuadTree* expand_tree_for_node(Node*);
         bool is_leaf_node() const;
         void visualize_rcr(int visualization_matrix[], int row_start, int row_end,

@@ -9,17 +9,17 @@
 PRQuadTree::PRQuadTree(): bucket(){
     topLeft = Point();
     botRight = Point();
-    topLeftTree = nullptr;
-    topRightTree = nullptr;
     botLeftTree = nullptr;
+    topLeftTree = nullptr;
     botRightTree = nullptr;
+    topRightTree = nullptr;
 }
 
 PRQuadTree::PRQuadTree(Point topL, Point botR): bucket() {
-    topLeftTree = nullptr;
-    topRightTree = nullptr;
     botLeftTree = nullptr;
+    topLeftTree = nullptr;
     botRightTree = nullptr;
+    topRightTree = nullptr;
     topLeft = std::move(topL);
     botRight = std::move(botR);
 }
@@ -55,8 +55,6 @@ Node* PRQuadTree::search(Point p) {
     // Current quad cannot contain it
     if (!inBoundary(p))
         return nullptr;
-    // We are at a quad of unit length
-    // We cannot subdivide this quad further
     if (!bucket.empty()) {
         for (auto& n : bucket){
             if (n.pos.latitude == p.latitude && n.pos.longitude == p.longitude)
@@ -66,28 +64,28 @@ Node* PRQuadTree::search(Point p) {
     }
     // '%' is averaging two DMS values
     if ((topLeft.latitude % botRight.latitude) >= p.latitude) {
-        // Indicates topLeftTree
-        if ((topLeft.longitude % botRight.longitude) >= p.longitude) {
-            if (topLeftTree == nullptr)
-                return nullptr;
-            return topLeftTree->search(p);
-        } else {// Indicates botLeftTree
+        // Indicates lower half
+        if ((topLeft.longitude % botRight.longitude) >= p.longitude) {// Indicates left half
             if (botLeftTree == nullptr)
                 return nullptr;
             return botLeftTree->search(p);
-        }
-    }
-    else {
-        // Indicates topRightTree
-        // '%' is averaging two DMS values
-        if ((topLeft.longitude % botRight.longitude) >= p.longitude) {
-            if (topRightTree == nullptr)
-                return nullptr;
-            return topRightTree->search(p);
-        } else { // Indicates botRightTree
+        } else {// Indicates right half
             if (botRightTree == nullptr)
                 return nullptr;
             return botRightTree->search(p);
+        }
+    }
+    else {
+        // Indicates upper half
+        // '%' is averaging two DMS values
+        if ((topLeft.longitude % botRight.longitude) >= p.longitude) { // Indicates left half
+            if (topLeftTree == nullptr)
+                return nullptr;
+            return topLeftTree->search(p);
+        } else { // Indicates right half
+            if (topRightTree == nullptr)
+                return nullptr;
+            return topRightTree->search(p);
         }
     }
 };
@@ -105,14 +103,14 @@ void PRQuadTree::visualize_rcr(int visualization_matrix[], int row_start, int ro
         visualization_matrix[row_ind * array_cols + col_ind] = tree_size;
         return;
     }
-    if (topLeftTree != nullptr)
-        topLeftTree->visualize_rcr(visualization_matrix, row_start, row_ind, col_start, col_ind, array_rows, array_cols);
-    if (topRightTree != nullptr)
-        topRightTree->visualize_rcr(visualization_matrix, row_start, row_ind, col_ind, col_end, array_rows, array_cols);
     if (botLeftTree != nullptr)
-        botLeftTree->visualize_rcr(visualization_matrix, row_ind, row_end, col_start, col_ind, array_rows, array_cols);
+        botLeftTree->visualize_rcr(visualization_matrix, row_start, row_ind, col_start, col_ind, array_rows, array_cols);
+    if (topLeftTree != nullptr)
+        topLeftTree->visualize_rcr(visualization_matrix, row_start, row_ind, col_ind, col_end, array_rows, array_cols);
     if (botRightTree != nullptr)
-        botRightTree->visualize_rcr(visualization_matrix, row_ind, row_end, col_ind, col_end, array_rows, array_cols);
+        botRightTree->visualize_rcr(visualization_matrix, row_ind, row_end, col_start, col_ind, array_rows, array_cols);
+    if (topRightTree != nullptr)
+        topRightTree->visualize_rcr(visualization_matrix, row_ind, row_end, col_ind, col_end, array_rows, array_cols);
 
 }
 
@@ -150,13 +148,13 @@ std::string PRQuadTree::visualize(int cell_rows, int cell_cols) const{
 
 std::string PRQuadTree::str(int level, const std::string& parent_prefix) const {
     std::ostringstream os;
-    if (topLeftTree != nullptr)
-        os << topLeftTree -> str(level + 1, parent_prefix + "   ");
+    if (botLeftTree != nullptr)
+        os << botLeftTree -> str(level + 1, parent_prefix + "   ");
     else if (!is_leaf_node())
         os << parent_prefix << "   *" << endl;
 
-    if (topRightTree != nullptr)
-        os << topRightTree -> str(level + 1, parent_prefix+ "   ");
+    if (topLeftTree != nullptr)
+        os << topLeftTree -> str(level + 1, parent_prefix + "   ");
     else if (!is_leaf_node())
         os << parent_prefix << "   *" << endl;
 
@@ -168,13 +166,13 @@ std::string PRQuadTree::str(int level, const std::string& parent_prefix) const {
             os << n.str() << " ";
         os << endl;
     }
-    if (botLeftTree != nullptr)
-        os << botLeftTree -> str(level + 1, parent_prefix+ "   ");
+    if (botRightTree != nullptr)
+        os << botRightTree -> str(level + 1, parent_prefix + "   ");
     else if (!is_leaf_node())
         os << parent_prefix << "   *" << endl;
 
-    if (botRightTree != nullptr)
-        os << botRightTree -> str(level + 1, parent_prefix+ "   ");
+    if (topRightTree != nullptr)
+        os << topRightTree -> str(level + 1, parent_prefix + "   ");
     else if (!is_leaf_node())
         os << parent_prefix << "   *" << endl;
     return os.str();
@@ -182,42 +180,37 @@ std::string PRQuadTree::str(int level, const std::string& parent_prefix) const {
 
 PRQuadTree* PRQuadTree::expand_tree_for_node(Node* node) {
     // '%' is averaging two DMS values
-    if ((topLeft.latitude % botRight.latitude) <= node->pos.latitude) {
-        if ((topLeft.longitude % botRight.longitude) >= node->pos.longitude) {
-            // Indicates topLeftTree
-            if (topLeftTree == nullptr)
-                topLeftTree = new PRQuadTree(
-                        Point(topLeft.latitude, topLeft.longitude),
-                        Point((topLeft.latitude % botRight.latitude) ,(topLeft.longitude % botRight.longitude)));
-            return topLeftTree;
-        } else {
-            // Indicates topRightTree
+    const DMS &midLatitude = topLeft.latitude % botRight.latitude;
+    const DMS &midLongitude = topLeft.longitude % botRight.longitude;
+    const Point &center = Point(midLatitude, midLongitude);
+    if (midLatitude >= node->pos.latitude) {
+        if (midLongitude >= node->pos.longitude) {
+            // Indicates botLeftTree
             if (botLeftTree == nullptr)
-                botLeftTree = new PRQuadTree(
-                        Point(topLeft.latitude, (topLeft.longitude % botRight.longitude)),
-                        Point((topLeft.latitude % botRight.latitude), botRight.longitude));
+                botLeftTree = new PRQuadTree(Point(midLatitude, topLeft.longitude), Point(botRight.latitude, midLongitude));
             return botLeftTree;
+        } else {
+            // Indicates topLeftTree
+            if (botRightTree == nullptr)
+                botRightTree = new PRQuadTree(center,Point(botRight.latitude, botRight.longitude));
+            return botRightTree;
         }
     }
     else {
-        if ((topLeft.longitude % botRight.longitude) >= node->pos.longitude) {
-            // Indicates botLeftTree
-            if (topRightTree == nullptr)
-                topRightTree = new PRQuadTree(
-                        Point((topLeft.latitude % botRight.latitude), topLeft.longitude),
-                        Point(botRight.latitude, (topLeft.longitude % botRight.longitude)));
-            return topRightTree;
-        } else {
+        if (midLongitude >= node->pos.longitude) {
             // Indicates botRightTree
-            if (botRightTree == nullptr)
-                botRightTree = new PRQuadTree(
-                        Point((topLeft.latitude % botRight.latitude),(topLeft.longitude % botRight.longitude)),
-                        Point(botRight.latitude, botRight.longitude));
-            return botRightTree;
+            if (topLeftTree == nullptr)
+                topLeftTree = new PRQuadTree(Point(topLeft.latitude, topLeft.longitude), center);
+            return topLeftTree;
+        } else {
+            // Indicates topRightTree
+            if (topRightTree == nullptr)
+                topRightTree = new PRQuadTree(Point(topLeft.latitude, midLongitude), Point(midLatitude, botRight.longitude));
+            return topRightTree;
         }
     }
 }
 
 bool PRQuadTree::is_leaf_node() const{
-    return topLeftTree == nullptr && topRightTree == nullptr && botLeftTree == nullptr && botRightTree == nullptr;
+    return botLeftTree == nullptr && topLeftTree == nullptr && botRightTree == nullptr && topRightTree == nullptr;
 }

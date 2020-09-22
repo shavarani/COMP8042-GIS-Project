@@ -5,6 +5,7 @@
 #ifndef FINAL_PROJECT_COORDINATEINDEX_H
 #define FINAL_PROJECT_COORDINATEINDEX_H
 
+#include <set>
 #include "PRQuadTree.h"
 #include "World.h"
 
@@ -42,6 +43,7 @@ class CoordinateIndex {
         void updateWorld(const World& wd);
 
         void index_record(DMS latitude, DMS longitude, int record_offset);
+        set<int> lookup_record(const DMS& latitude, const DMS& longitude);
 
         int get_index_size() const;
 

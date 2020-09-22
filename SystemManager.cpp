@@ -87,13 +87,25 @@ string SystemManager::process_what_is_at_command(const string & geographic_coord
     //		8. what is at command
     //			- what is at<tab><geographic coordinate>
     //			- find every GIS record in the database file that matches the given <geographic coordinate>,
+    DMS gc_lat(geographic_coordinate_lat);
+    DMS gc_long(geographic_coordinate_long);
+    std::set<int> possible_offsets = c_index.lookup_record(gc_lat, gc_long);
+    if (possible_offsets.empty())
+        return "No records match \""+geographic_coordinate_lat+"\" and \""+geographic_coordinate_long+"\"\n";
+    vector<GISRecord> res = pool.retrieve_records(possible_offsets);
+    std::ostringstream os;
     //				- for each record log only log:
     //					- the offset (at which the record was found)
     //					- the feature name
     //					- county name
     //					- state abbreviation
-    cout << "args: " << geographic_coordinate_lat << ", " << geographic_coordinate_long << endl;
-    return "";
+    os << "  The following feature(s) were found at (" << gc_lat.str() << ", " << gc_long.str() << "):" << endl;
+    for (auto& elem :res)
+        os  << "\t" << elem.get_file_offset() << ":  \""
+            << elem.get_feature_name() << "\"  \""
+            << elem.get_county_name() << "\"  \""
+            << elem.get_state_alpha() << "\"" << endl;
+    return os.str();
 }
 
 // TODO		-- optional -sort flag for "what is in" commands needs to be worked out!
