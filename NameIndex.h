@@ -5,9 +5,9 @@
 #ifndef FINAL_PROJECT_NAMEINDEX_H
 #define FINAL_PROJECT_NAMEINDEX_H
 
-#include <map>
 #include <set>
 #include <sstream>
+#include "Hashtable.h"
 
 struct NameIndexElement {
     private:
@@ -15,6 +15,10 @@ struct NameIndexElement {
         std::set<int> record_offsets;
     public:
         NameIndexElement() = default;
+        NameIndexElement( const NameIndexElement & rhs ) = default; // Copy Constructor
+        NameIndexElement( NameIndexElement && rhs ) = default; // Move Constructor
+        NameIndexElement & operator= ( const NameIndexElement & rhs ) = default; // Copy Assignment
+        NameIndexElement & operator= ( NameIndexElement && rhs ) = default; // Move Assignment
         explicit NameIndexElement(const std::string & k): record_offsets(){
             key = k;
         }
@@ -59,15 +63,15 @@ class NameIndex {
     private:
         int table_size = 1024;
         double load_factor = 0.0;
-        // TODO implement a hashmap here!
-        std::map<unsigned long, NameIndexElement> index;
+        Hashtable<string, NameIndexElement> index;
         int index_size = 0.0;
         int longest_probe_sequence = 0.0;
         int all_name_length = 0.0;
 
 public:
     ~NameIndex() = default;
-    NameIndex() : index() {}
+    NameIndex(): index(
+            Hashtable<string, NameIndexElement>(table_size, new ElfHash(), new QuadraticProbing())){}
     NameIndex( const NameIndex & rhs ) = default; // Copy Constructor
     NameIndex( NameIndex && rhs ) = default; // Move Constructor
     NameIndex & operator= ( const NameIndex & rhs ) = default; // Copy Assignment
@@ -78,7 +82,7 @@ public:
     int get_index_size() const;
     int get_longest_probe_sequence() const;
     int get_average_name_length() const;
-    std::string str() const;
+    std::string str();
 };
 
 
