@@ -124,8 +124,8 @@ void PRQuadTree::collected_rectangular_features(PRQuadTree& search_area){
         || topLeft.latitude   < search_area.get_bottom_right_boundary().latitude
         || topLeft.longitude  > search_area.get_bottom_right_boundary().longitude)
         return;*/
-    if(!inBoundary(search_area.get_top_left_boundary()) && !inBoundary(search_area.get_bottom_right_boundary()))
-        return;
+    //if(!inBoundary(search_area.get_top_left_boundary()) && !inBoundary(search_area.get_bottom_right_boundary()))
+    //    return;
     if (!bucket.empty()) {
         for (auto& n : bucket)
             if(search_area.inBoundary(n.pos))
