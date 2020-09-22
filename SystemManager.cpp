@@ -99,7 +99,7 @@ string SystemManager::process_what_is_at_command(const string & geographic_coord
     //					- the feature name
     //					- county name
     //					- state abbreviation
-    os << "  The following feature(s) were found at (" << gc_lat.str() << ", " << gc_long.str() << "):" << endl;
+    os << "  The following feature(s) were found at (" << gc_lat.str() << ", " << gc_long.str() << ")" << endl;
     for (auto& elem :res)
         os  << "\t" << elem.get_file_offset() << ":  \""
             << elem.get_feature_name() << "\"  \""
@@ -134,12 +134,25 @@ string SystemManager::process_what_is_in_command(const string & geographic_coord
         return "Nothing was found in \""+gc_lat.str()+" +/- "+to_string(half_height)+"\" and \""+gc_long.str()+" +/- "+to_string(half_width)+"\"\n";
     vector<GISRecord> res = pool.retrieve_records(possible_offsets);
     std::ostringstream os;
-    os << "  The following feature(s) were found at (" << gc_lat.str() << " +/- " << half_height <<", " << gc_long.str() << " +/- " << half_width << "):" << endl;
-    for (auto& elem :res)
-        os  << "\t" << elem.get_file_offset() << ":  \""
-            << elem.get_feature_name() << "\"  \""
-            << elem.get_county_name() << "\"  \""
-            << elem.get_state_alpha() << "\"" << endl;
+    os << "  The following "<< res.size() <<" feature(s) were found at (" << gc_lat.str() << " +/- " << half_height <<", " << gc_long.str() << " +/- " << half_width << ")" << endl;
+    if (long_report)
+        for (auto& elem :res)
+            os  << "  Feature ID   : " << elem.get_feature_id() << endl
+                << "  Feature Name : " << elem.get_feature_name() << endl
+                << "  Feature Cat  : " << elem.get_feature_class() << endl
+                << "  State        : " << elem.get_state_alpha() << endl
+                << "  County       : " << elem.get_county_name() << endl
+                << "  Longitude    : " << elem.get_primary_long_dms().str() << endl
+                << "  Latitude     : " << elem.get_primary_lat_dms().str() << endl
+                << "  Elev in ft   : " << elem.get_elevation_ft() << endl
+                << "  USGS Quad    : " << elem.get_map_name() << endl
+                << "  Date created : " << elem.get_date_created() << endl;
+    else
+        for (auto& elem :res)
+            os  << "\t" << elem.get_file_offset() << ":  \""
+                << elem.get_feature_name() << "\"  \""
+                << elem.get_state_alpha() << "\"  \""
+                << "(" << gc_lat.str() << ", " << gc_long.str() << ")" << endl;
     return os.str();
 }
 

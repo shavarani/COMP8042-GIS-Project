@@ -83,6 +83,26 @@ std::string GISRecord::get_county_name(){
     return county_name;
 }
 
+int GISRecord::get_feature_id() const{
+    return feature_id;
+}
+
+std::string GISRecord::get_feature_class(){
+    return feature_class;
+}
+
+int GISRecord::get_elevation_ft() const{
+    return elev_in_ft;
+}
+
+std::string GISRecord::get_map_name(){
+    return map_name;
+}
+
+std::string GISRecord::get_date_created(){
+    return date_created;
+}
+
 string GISRecord::str(){
     bool empty_found = false;
     string result;

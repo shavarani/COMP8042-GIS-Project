@@ -73,6 +73,11 @@ class GISRecord {
         void set_file_offset(int offset);
         int get_file_offset() const;
         std::string get_county_name();
+        int get_feature_id() const;
+        std::string get_feature_class();
+        int get_elevation_ft() const;
+        std::string get_map_name();
+        std::string get_date_created();
 };
 
 
