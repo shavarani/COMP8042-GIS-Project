@@ -1,5 +1,5 @@
 //
-// Created by hassan on 2020-09-17.
+// Created by Hassan S. Shavarani
 //
 
 #ifndef FINAL_PROJECT_NAMEINDEX_H
