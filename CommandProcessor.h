@@ -24,7 +24,7 @@ class CommandProcessor {
         CommandProcessor( CommandProcessor && rhs ) = delete; // Move Constructor
         CommandProcessor & operator= ( const CommandProcessor & rhs ) = delete; // Copy Assignment
         CommandProcessor & operator= ( CommandProcessor && rhs ) = delete; // Move Assignment
-        void process_command(const std::vector<std::string>& arguments);
+        bool process_command(const std::vector<std::string>& arguments);
 };
 
 

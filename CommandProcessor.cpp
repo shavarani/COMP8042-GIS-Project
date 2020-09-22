@@ -42,11 +42,12 @@ CommandProcessor::CommandProcessor(const char* db_file, const char* script_file,
         }
         vector<string> command_parts;
         split(command, command_parts, '\t');
-        process_command(command_parts);
+        if (!process_command(command_parts))
+            break;
     }
 }
 
-void CommandProcessor::process_command(const vector<string>& arguments){
+bool CommandProcessor::process_command(const vector<string>& arguments){
     auto itr = arguments.begin();
     const string command = *itr++;
     switch(get_command(command)) {
@@ -107,16 +108,17 @@ void CommandProcessor::process_command(const vector<string>& arguments){
                 throw std::invalid_argument("What_is_in command receives at most 5 arguments");
             break;
         }
-        case QUIT:
-            logger.log_command_output(systemManager.process_quit_command());
-            logger.log_time("End time:");
-            break;
         case DEBUG:
             logger.log_command_output(systemManager.process_debug_command(*itr++));
             if (itr != arguments.end())
                 throw std::invalid_argument("Debug command only receives 1 argument");
             break;
+        case QUIT:
+            logger.log_command_output("Terminating execution of commands.\n");
+            logger.log_time("End time:");
+            return false;
         default:
             throw std::invalid_argument("Invalid command " + command + " provided!");
     }
+    return true;
 }

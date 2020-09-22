@@ -8,6 +8,8 @@
 #include <string>
 #include <iostream>
 #include <sstream>
+#include <map>
+#include <set>
 #include "World.h"
 #include "NameIndex.h"
 #include "CoordinateIndex.h"
@@ -25,7 +27,12 @@ class SystemManager {
         CoordinateIndex c_index;
         void record_to_db(const string & raw_record);
         BufferPool pool;
-
+        const std::map<std::string, std::set<string>> filters =
+                {{"structure", {"Airport", "Bridge", "Building", "Church", "Dam", "Hospital", "Levee", "Park",
+                                        "Post Office", "School", "Tower", "Tunnel"}},
+                 {"water", {"Arroyo", "Bay", "Bend", "Canal", "Channel", "Falls","Glacier", "Gut", "Harbor",
+                                        "Lake", "Rapids", "Reservoir", "Sea", "Spring", "Stream", "Swamp", "Well"}},
+                 {"pop", {"Populated Place"}}};
     public:
         explicit SystemManager(const char* db_file_adr = nullptr);
         SystemManager( const SystemManager & rhs ) = delete; // Copy Constructor
@@ -34,7 +41,6 @@ class SystemManager {
         SystemManager & operator= ( SystemManager && rhs ) = delete; // Move Assignment
         ~SystemManager() = default;
         string process_debug_command(const string & component_name);
-        string process_quit_command();
         string process_world_command(const string& west_long, const string& east_long,
                                      const string& south_lat, const string& north_lat);
         string process_import_command(const string & gis_record_file_name);
