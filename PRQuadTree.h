@@ -32,6 +32,8 @@ struct Node {
 
     Node() = default;
 
+    Node & operator= ( const Node & rhs ) = default;
+
     void insert(int _record_offset){
         record_offsets.insert(record_offsets.end(), _record_offset);
     }
@@ -71,9 +73,13 @@ class PRQuadTree {
         PRQuadTree(Point topL, Point botR);
         bool insert(Node*);
         Node* search(Point);
-        bool inBoundary(Point);
+        bool inBoundary(Point) const;
         std::string str(int level = 0, const std::string& parent_prefix = "") const;
         std::string visualize(int cell_rows, int cell_cols) const;
+        void collected_rectangular_features(PRQuadTree& search_area);
+        std::vector<Node> get_bucket();
+        Point get_top_left_boundary();
+        Point get_bottom_right_boundary();
 };
 
 

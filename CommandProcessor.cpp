@@ -55,20 +55,20 @@ void CommandProcessor::process_command(const vector<string>& arguments){
             string east = *itr++;
             string north = *itr++;
             string south = *itr++;
-            logger.log_printable_log(systemManager.process_world_command(west, east, north, south));
+            logger.log_command_output(systemManager.process_world_command(west, east, north, south));
             if (itr != arguments.end())
                 throw std::invalid_argument("World command only receives 4 arguments");
             break;
         }
         case IMPORT:
-            logger.log_printable_log(systemManager.process_import_command(*itr++));
+            logger.log_command_output(systemManager.process_import_command(*itr++));
             if (itr != arguments.end())
                 throw std::invalid_argument("Import command only receives 1 argument");
             break;
         case WHAT_IS: {
             string feature_name = *itr++;
             string state_abbreviation = *itr++;
-            logger.log_printable_log(systemManager.process_what_is_command(feature_name, state_abbreviation));
+            logger.log_command_output(systemManager.process_what_is_command(feature_name, state_abbreviation));
             if (itr != arguments.end())
                 throw std::invalid_argument("What_is command only receives 2 arguments");
             break;
@@ -76,7 +76,8 @@ void CommandProcessor::process_command(const vector<string>& arguments){
         case WHAT_IS_AT: {
             string geographic_coordinate_lat = *itr++;
             string geographic_coordinate_long = *itr++;
-            logger.log_printable_log(systemManager.process_what_is_at_command(geographic_coordinate_lat, geographic_coordinate_long));
+            logger.log_command_output(
+                    systemManager.process_what_is_at_command(geographic_coordinate_lat, geographic_coordinate_long));
             if (itr != arguments.end())
                 throw std::invalid_argument("What_is_at command only receives 2 arguments");
             break;
@@ -95,7 +96,11 @@ void CommandProcessor::process_command(const vector<string>& arguments){
                 first = *itr++;
                 second = *itr++;
             }
-            systemManager.process_what_is_in_command(first, second, *itr++, *itr++, filter, long_report);
+            int half_height = stoi(*itr++);
+            int half_width = stoi(*itr++);
+            logger.log_command_output(
+                    systemManager.process_what_is_in_command(first, second, half_height, half_width, filter,
+                                                             long_report));
             while(itr != arguments.end() && (*itr++).empty())
                 continue;
             if (itr != arguments.end())
@@ -103,11 +108,11 @@ void CommandProcessor::process_command(const vector<string>& arguments){
             break;
         }
         case QUIT:
-            systemManager.process_quit_command();
+            logger.log_command_output(systemManager.process_quit_command());
             logger.log_time("End time:");
             break;
         case DEBUG:
-            logger.log_printable_log(systemManager.process_debug_command(*itr++));
+            logger.log_command_output(systemManager.process_debug_command(*itr++));
             if (itr != arguments.end())
                 throw std::invalid_argument("Debug command only receives 1 argument");
             break;

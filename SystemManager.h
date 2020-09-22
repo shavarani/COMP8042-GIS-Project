@@ -41,7 +41,7 @@ class SystemManager {
         string process_what_is_command(const string & feature_name, const string & state_abbreviation);
         string process_what_is_at_command(const string & geographic_coordinate_lat, const string & geographic_coordinate_long);
         string process_what_is_in_command(const string & geographic_coordinate_lat, const string & geographic_coordinate_long,
-                                          const string & half_height, const string & half_width, const string & filter, bool long_report);
+                                          int half_height, int half_width, const string & filter, bool long_report);
 };
 
 

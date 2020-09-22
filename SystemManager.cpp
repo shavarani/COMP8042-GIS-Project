@@ -91,7 +91,7 @@ string SystemManager::process_what_is_at_command(const string & geographic_coord
     DMS gc_long(geographic_coordinate_long);
     std::set<int> possible_offsets = c_index.lookup_record(gc_lat, gc_long);
     if (possible_offsets.empty())
-        return "No records match \""+geographic_coordinate_lat+"\" and \""+geographic_coordinate_long+"\"\n";
+        return "Nothing was found at \""+gc_lat.str()+"\" and \""+gc_long.str()+"\"\n";
     vector<GISRecord> res = pool.retrieve_records(possible_offsets);
     std::ostringstream os;
     //				- for each record log only log:
@@ -110,7 +110,7 @@ string SystemManager::process_what_is_at_command(const string & geographic_coord
 
 // TODO		-- optional -sort flag for "what is in" commands needs to be worked out!
 string SystemManager::process_what_is_in_command(const string & geographic_coordinate_lat, const string & geographic_coordinate_long,
-                                                 const string & half_height, const string & half_width, const string & filter, bool long_report){
+                                                 int half_height, int half_width, const string & filter, bool long_report){
     //		9. What is in command
     //			- what is in<tab><geographic coordinate><tab><half-height><tab><half-width>
     //				- optional -long : display of a long listing of the relevant records
@@ -127,10 +127,20 @@ string SystemManager::process_what_is_in_command(const string & geographic_coord
     //						- the state name
     //						- the primary latitude
     //						- the primary longitude
-    cout    << "args: " << geographic_coordinate_lat << ", " << geographic_coordinate_long << ", +/-"
-            << half_height << ", +/-" << half_width << ", filter: " << filter
-            << ", long? "<< (long_report?"true":"false") << endl;
-    return "";
+    DMS gc_lat(geographic_coordinate_lat);
+    DMS gc_long(geographic_coordinate_long);
+    std::set<int> possible_offsets = c_index.lookup_area(gc_lat, gc_long, half_width, half_height);
+    if (possible_offsets.empty())
+        return "Nothing was found in \""+gc_lat.str()+" +/- "+to_string(half_height)+"\" and \""+gc_long.str()+" +/- "+to_string(half_width)+"\"\n";
+    vector<GISRecord> res = pool.retrieve_records(possible_offsets);
+    std::ostringstream os;
+    os << "  The following feature(s) were found at (" << gc_lat.str() << " +/- " << half_height <<", " << gc_long.str() << " +/- " << half_width << "):" << endl;
+    for (auto& elem :res)
+        os  << "\t" << elem.get_file_offset() << ":  \""
+            << elem.get_feature_name() << "\"  \""
+            << elem.get_county_name() << "\"  \""
+            << elem.get_state_alpha() << "\"" << endl;
+    return os.str();
 }
 
 string SystemManager::process_debug_command(const string & component_name){

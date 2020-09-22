@@ -161,6 +161,38 @@ struct DMS {
             }
         }
 
+        DMS add_up_seconds(int secs) const{
+            // secs can both be positive and negative
+            DMS result;
+            int s = second + minute * 60 + degree * 3600 + secs;
+            bool change_dir = s < 0;
+            s = abs(s);
+            result.degree = s / 3600;
+            result.minute = (s - 3600 * result.degree) / 60;
+            result.second = (s - 3600 * result.degree) % 60;
+            if (change_dir){
+                switch (direction) {
+                    case NORTH:
+                        result.direction = SOUTH;
+                        break;
+                    case SOUTH:
+                        result.direction = NORTH;
+                        break;
+                    case WEST:
+                        result.direction = EAST;
+                        break;
+                    case EAST:
+                        result.direction = WEST;
+                        break;
+                    default:
+                        result.direction = NULL_ISLAND;
+                }
+            } else {
+                result.direction = direction;
+            }
+            return result;
+        }
+
         double to_dec() const{
             double ang = degree * 1.0 + ((minute + (second / 60.0)) / 60.0) ;
             return (direction == WEST || direction == SOUTH)? -ang: ang;

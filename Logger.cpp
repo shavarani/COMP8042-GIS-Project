@@ -32,7 +32,7 @@ void Logger::log_file_names(const char* db_file_name, const char* script_file_na
     log_file.write_to_file(res);
 }
 
-void Logger::log_printable_log(const string& log){
+void Logger::log_command_output(const string& log){
     std::ostringstream os;
     os << log << "------------------------------------------------------------------------------------------" << endl;
     string res = os.str();

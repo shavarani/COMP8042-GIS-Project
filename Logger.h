@@ -26,7 +26,7 @@ class Logger {
 
         void log_command(const string & command);
         void log_file_names(const char* db_file_name, const char* script_file_name, const char* log_file_name);
-        void log_printable_log(const string& log);
+        void log_command_output(const string& log);
         void log_time(const string & time_name = "Run Time:");
 };
 

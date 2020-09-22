@@ -44,6 +44,7 @@ class CoordinateIndex {
 
         void index_record(DMS latitude, DMS longitude, int record_offset);
         set<int> lookup_record(const DMS& latitude, const DMS& longitude);
+        set<int> lookup_area(const DMS& latitude, const DMS& longitude, int half_width, int half_height);
 
         int get_index_size() const;
 

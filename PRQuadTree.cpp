@@ -91,7 +91,7 @@ Node* PRQuadTree::search(Point p) {
 };
 
 // Check if current quadtree contains the point
-bool PRQuadTree::inBoundary(Point p) {
+bool PRQuadTree::inBoundary(Point p) const {
     return (p.latitude <= topLeft.latitude && p.latitude >= botRight.latitude &&
             p.longitude >= topLeft.longitude && p.longitude <= botRight.longitude);
 }
@@ -112,6 +112,34 @@ void PRQuadTree::visualize_rcr(int visualization_matrix[], int row_start, int ro
     if (topRightTree != nullptr)
         topRightTree->visualize_rcr(visualization_matrix, row_ind, row_end, col_ind, col_end, array_rows, array_cols);
 
+}
+
+void PRQuadTree::collected_rectangular_features(PRQuadTree& search_area){
+    //search_area.get_top_left_boundary().latitude
+    //search_area.get_bottom_right_boundary().latitude
+    // p.latitude <= topLeft.latitude && p.latitude >= botRight.latitude
+    //p.longitude >= topLeft.longitude && p.longitude <= botRight.longitude
+    /*if (   botRight.latitude  > search_area.get_top_left_boundary().latitude
+        || botRight.longitude < search_area.get_top_left_boundary().longitude
+        || topLeft.latitude   < search_area.get_bottom_right_boundary().latitude
+        || topLeft.longitude  > search_area.get_bottom_right_boundary().longitude)
+        return;*/
+    if(!inBoundary(search_area.get_top_left_boundary()) && !inBoundary(search_area.get_bottom_right_boundary()))
+        return;
+    if (!bucket.empty()) {
+        for (auto& n : bucket)
+            if(search_area.inBoundary(n.pos))
+                search_area.bucket.insert(search_area.bucket.begin(), Node(n));
+        return;
+    }
+    if (botLeftTree != nullptr)
+        botLeftTree->collected_rectangular_features(search_area);
+    if (botRightTree != nullptr)
+        botRightTree->collected_rectangular_features(search_area);
+    if (topLeftTree != nullptr)
+        topLeftTree->collected_rectangular_features(search_area);
+    if (topRightTree != nullptr)
+        topRightTree->collected_rectangular_features(search_area);
 }
 
 std::string PRQuadTree::visualize(int cell_rows, int cell_cols) const{
@@ -213,4 +241,16 @@ PRQuadTree* PRQuadTree::expand_tree_for_node(Node* node) {
 
 bool PRQuadTree::is_leaf_node() const{
     return botLeftTree == nullptr && topLeftTree == nullptr && botRightTree == nullptr && topRightTree == nullptr;
+}
+
+std::vector<Node> PRQuadTree::get_bucket(){
+    return bucket;
+}
+
+Point PRQuadTree::get_top_left_boundary(){
+    return topLeft;
+}
+
+Point PRQuadTree::get_bottom_right_boundary(){
+    return botRight;
 }
