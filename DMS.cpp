@@ -22,7 +22,7 @@ struct DMS {
         int second;
         std::string raw;
     public:
-        DMS(const std::string& dms) {
+        explicit DMS(const std::string& dms) {
             if (dms == "Unknown") {
                 direction = NULL_ISLAND;
                 degree = 0;
@@ -47,7 +47,6 @@ struct DMS {
             } else if (dms[0] == '-') {
                 throw std::invalid_argument("DMS values are expected to show the sign using the direction modifiers at the end");
             }
-            double deg, min_, sec;
             degree = stoi(dms.substr(0, is_latitude? 2: 3));
             minute = stoi(dms.substr(is_latitude? 2: 3, 2));
             second = stoi(dms.substr(is_latitude? 4: 5, 2));
@@ -79,8 +78,7 @@ struct DMS {
             }
         }
 
-
-    bool operator==(const DMS& a) const{
+        bool operator==(const DMS& a) const{
             if(a.direction==direction && a.degree== degree && a.minute== minute && a.second== second)
                 return true;
             else
