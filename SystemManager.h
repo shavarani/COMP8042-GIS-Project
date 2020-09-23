@@ -6,7 +6,6 @@
 #define FINAL_PROJECT_SYSTEMMANAGER_H
 
 #include <string>
-#include <iostream>
 #include <sstream>
 #include <map>
 #include <set>

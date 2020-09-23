@@ -32,7 +32,6 @@ Command get_command(const string& command_name){
 CommandProcessor::CommandProcessor(const char* db_file, const char* script_file, const char* log_file):
         logger(log_file), systemManager(db_file) {
     this -> script_lines = FileManager::read_file(script_file);
-    cout << "Reading the script file in CommandProcessor..." << endl;
     logger.log_file_names(db_file, script_file, log_file);
     logger.log_time("Start Time:");
     for (const auto& command: this->script_lines) {

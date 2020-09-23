@@ -15,14 +15,15 @@ vector<string> FileManager::read_file(const string& filename){
         my_file.close();
     }
     else
-        throw std::invalid_argument("Unable to open file, exiting ...");
+        throw std::invalid_argument("Unable to open the file \"" + filename + "\" , it might not exist, or there are access permission problems, exiting ...");
     return data;
 }
 
 void FileManager::create_file_to_write(const char * filename){
-    if (remove(filename) == 0){
+    remove(filename);
+    /*if (remove(filename) == 0){
         cout << "Previously created file <" << filename <<"> successfully re-created ..." << endl;
-    }
+    }*/
     f_name = filename;
     open_file_writer();
 }
