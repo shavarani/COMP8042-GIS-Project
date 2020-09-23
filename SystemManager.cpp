@@ -91,7 +91,7 @@ string SystemManager::process_what_is_at_command(const string & geographic_coord
     DMS gc_long(geographic_coordinate_long);
     std::set<int> possible_offsets = c_index.lookup_record(gc_lat, gc_long);
     if (possible_offsets.empty())
-        return "  Nothing was found at \""+gc_lat.str()+"\" and \""+gc_long.str()+"\"\n";
+        return "  Nothing was found at (\""+gc_lat.str()+"\", \""+gc_long.str()+"\")\n";
     vector<GISRecord> res = pool.retrieve_records(possible_offsets);
     std::ostringstream os;
     //				- for each record log only log:
@@ -131,15 +131,15 @@ string SystemManager::process_what_is_in_command(const string & geographic_coord
     DMS gc_long(geographic_coordinate_long);
     std::set<int> possible_offsets = c_index.lookup_area(gc_lat, gc_long, half_width, half_height);
     if (possible_offsets.empty())
-        return "  Nothing was found in \""+gc_lat.str()+" +/- "+to_string(half_height)+"\" and \""+gc_long.str()+" +/- "+to_string(half_width)+"\"\n";
+        return "  Nothing was found in (\""+gc_lat.str()+" +/- "+to_string(half_height)+"\", \""+gc_long.str()+" +/- "+to_string(half_width)+"\")\n";
     vector<GISRecord> res = pool.retrieve_records(possible_offsets);
     std::ostringstream os;
     if(filter.empty()) {
         os << "  The following " << res.size() << " feature(s) were found in (" << gc_lat.str() << " +/- "
-           << half_height << ", " << gc_long.str() << " +/- " << half_width << ")" << endl;
+           << half_height << ", " << gc_long.str() << " +/- " << half_width << ")" << endl << endl;
     } else {
         os << "  The following features matching your criteria were found in  (" << gc_lat.str() << " +/- "
-           << half_height << ", " << gc_long.str() << " +/- " << half_width << ")" << endl;
+           << half_height << ", " << gc_long.str() << " +/- " << half_width << ")" << endl << endl;
     }
     int filter_cnt = 0;
     if (long_report) {

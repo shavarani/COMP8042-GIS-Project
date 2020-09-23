@@ -11,7 +11,6 @@ std::string BufferPool::str(){
     for (int & it : dq)
         os << "  "<< it << ": " << pool.find(it)->second.get_raw_record() << endl;
     os<< "LRU" << endl;
-    os << std::endl;
     return os.str();
 }
 
