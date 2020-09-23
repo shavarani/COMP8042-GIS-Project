@@ -46,7 +46,7 @@ int NameIndex::get_average_name_length() const {
 std::string NameIndex::str() {
     std::ostringstream os;
     os  << "Format of display is " << std::endl << "Slot number: data record" << std::endl
-        << "Current table size is " << table_size << std::endl << "Number of elements in table is " << index_size
+        << "Current table size is " << index.getTableSize() << std::endl << "Number of elements in table is " << index_size
         << std::endl << std::endl;
     os << index.str();
     return os.str();

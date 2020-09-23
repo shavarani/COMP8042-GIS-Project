@@ -64,7 +64,7 @@ class LinearProbing : public ResolutionFunction {
 class QuadraticProbing : public ResolutionFunction {
     public:
         unsigned int operator()(int i) const override {
-            return i * i;
+            return (i * i + i) / 2;
         }
 };
 
@@ -93,9 +93,32 @@ class Hashtable{
         HashFunction<K>* hash;
         ResolutionFunction* f;
         int longestProbe = 0;
+        double size = 0.0;
+        int goodPrimeIndex;
+        int numRehashes = 0;
+        int c;
+
+        void expandAndRehash() {
+            ++numRehashes;
+            ++goodPrimeIndex;
+            c = c * 2;
+            std::vector<K> new_m_buckets;
+            std::vector<V> new_m_values;
+            std::vector<BucketStatus> new_m_statuses;
+            new_m_buckets.resize(c);
+            new_m_values.resize(c);
+            new_m_statuses.resize(c);
+            std::swap(m_buckets, new_m_buckets);
+            std::swap(m_values, new_m_values);
+            std::swap(m_statuses, new_m_statuses);
+            for (int i = 0; i < new_m_buckets.size(); ++i){
+                if (new_m_statuses[i] == OCCUPIED)
+                    insert(new_m_buckets[i], new_m_values[i]);
+            }
+        }
     public:
         Hashtable(int n, HashFunction<K>* _h, ResolutionFunction* _f) : numCollisions(0), hash(_h), f(_f) {
-            int c = n * 2;
+            c = n;
             m_buckets.resize(c);
             m_statuses.resize(c);
             m_values.resize(c);
@@ -118,6 +141,9 @@ class Hashtable{
             m_buckets[h] = key;
             m_statuses[h] = OCCUPIED;
             m_values[h] = value;
+            ++size;
+            if (size / c > 0.7f)
+                expandAndRehash();
             return true;
         }
 
@@ -142,6 +168,7 @@ class Hashtable{
             while (m_statuses[h] != EMPTY){
                 if (m_buckets[h] == key){
                     m_statuses[h] = DELETED;
+                    --size;
                     return true;
                 }
                 h = (h + hash->operator()(key)) % tableSize;
@@ -157,6 +184,14 @@ class Hashtable{
 
         int getNumCollisions() const {
             return numCollisions;
+        }
+
+        int getNumRehashes() const {
+            return numRehashes;
+        }
+
+        int getTableSize() {
+            return c;
         }
 
         std::vector<K> getKeys() {

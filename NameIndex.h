@@ -61,17 +61,14 @@ class NameIndex {
 
         // You must be able to display the contents of the hash table in a readable manner.
     private:
-        int table_size = 1024;
-        double load_factor = 0.0;
         Hashtable<string, NameIndexElement> index;
         int index_size = 0.0;
-        int longest_probe_sequence = 0.0;
         int all_name_length = 0.0;
 
 public:
     ~NameIndex() = default;
     NameIndex(): index(
-            Hashtable<string, NameIndexElement>(table_size, new ElfHash(), new QuadraticProbing())){}
+            Hashtable<string, NameIndexElement>(1024, new ElfHash(), new QuadraticProbing())){}
     NameIndex( const NameIndex & rhs ) = default; // Copy Constructor
     NameIndex( NameIndex && rhs ) = default; // Move Constructor
     NameIndex & operator= ( const NameIndex & rhs ) = default; // Copy Assignment
