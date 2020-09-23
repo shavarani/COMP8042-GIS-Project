@@ -168,7 +168,7 @@ string SystemManager::process_what_is_in_command(const string & geographic_coord
             os << "\t" << elem.get_file_offset() << ":  \""
                << elem.get_feature_name() << "\"  \""
                << elem.get_state_alpha() << "\"  \""
-               << "(" << gc_lat.str() << ", " << gc_long.str() << ")" << endl;
+               << "(" << elem.get_primary_lat_dms().str() << ", " << elem.get_primary_long_dms().str() << ")" << endl;
         }
     }
     if(!filter.empty()){
