@@ -7,7 +7,9 @@
 Logger::Logger(const char* log_file_adr): log_file(){
     log_file.create_file_to_write(log_file_adr);
     std::ostringstream os;
-    os << "GIS Program log:" << endl;
+    os  << "Course Project for COMP 8042" << endl
+        << "Student Name: <Your Name>, Student Id: <Your Student Id>" << endl
+        << "Begin of GIS Program log:" << endl;
     string res = os.str();
     log_file.write_to_file(res);
 }

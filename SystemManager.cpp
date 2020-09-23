@@ -35,7 +35,7 @@ string SystemManager::process_import_command(const string & gis_record_file_name
     //			- When completed, log
     //				- the number of entries added to each index,
     //				- the longest probe sequence that was needed when inserting to the hash table.
-    vector<string> gis_records = FileManager::read_file("../GIS_FILES/"+gis_record_file_name);
+    vector<string> gis_records = FileManager::read_file(gis_record_file_name);
     bool first_record_seen = false;
     int n_index_size_before_import = n_index.get_index_size();
     int c_index_size_before_import = c_index.get_index_size();
